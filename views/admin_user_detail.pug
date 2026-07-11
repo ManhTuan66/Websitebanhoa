@@ -1,0 +1,83 @@
+extends layout_admin
+
+block content
+  style.
+    .text-gold { color: #d4af37 !important; }
+    .user-card { background: white; padding: 40px; border-radius: 20px; border: 1px solid #eee; box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
+    .rank-display { display: flex; align-items: center; gap: 20px; padding: 25px; border-radius: 15px; background: #fffcf5; border: 1px solid #d4af37; margin-bottom: 30px; }
+    .rank-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; background: #d4af37; color: white; }
+    .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 25px; margin-bottom: 40px; }
+    .info-label { color: #888; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; }
+    .info-value { font-weight: 700; color: #1a1a1a; margin-top: 5px; font-size: 0.95rem; }
+    .section-title { font-size: 1.2rem; color: #1a1a1a; margin: 40px 0 20px; border-left: 4px solid #d4af37; padding-left: 15px; font-style: italic; }
+    .table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
+    .table th { color: #888; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1px; padding: 15px; border-bottom: 1px solid #eee; }
+    .table td { background: #f9f9f9; padding: 15px; border-top: 1px solid #eee; border-bottom: 1px solid #eee; }
+    .status-done { color: #2ecc71; font-weight: 700; }
+    .status-pending { color: #d4af37; font-weight: 700; }
+    .status-cancelled { color: #95a5a6; font-weight: 700; text-decoration: line-through; }
+
+  .user-card
+    .flex.justify-between.items-center.mb-10
+      div
+        h2(class="text-3xl font-bold pn-font italic text-[#1a1a1a]") 👤 Hồ sơ người dùng
+        p.text-gray-500 ID: #{user._id}
+      a(href="/admin/users", class="text-gray-400 hover:text-[#d4af37] font-bold transition") 
+        i.fas.fa-arrow-left.mr-2
+        | Quay lại danh sách
+
+    .rank-display
+      .rank-icon
+        i.fas.fa-crown
+      div
+        .info-label Hạng thành viên
+        h3(class="text-xl font-bold pn-font italic text-gold")= user.rank || 'Thành viên tiêu chuẩn'
+        p(class="text-[#1a1a1a] font-bold text-sm") 
+          i.fas.fa-star.mr-2
+          | #{user.points || 0} Điểm Flora
+
+    .info-grid
+      .info-item
+        .info-label Tên đăng nhập
+        .info-value= user.username
+      .info-item
+        .info-label Họ và tên
+        .info-value= user.fullName || 'Chưa cập nhật'
+      .info-item
+        .info-label Vai trò
+        .info-value.text-gold= user.role.toUpperCase()
+      .info-item
+        .info-label Số điện thoại
+        .info-value= user.phone || "Chưa cung cấp"
+      .info-item
+        .info-label Địa chỉ
+        .info-value= user.address || "Chưa cung cấp"
+
+    h3.section-title Lịch sử đơn hàng
+    if orders && orders.length > 0
+      table.table
+        thead
+          tr.text-left
+            th Mã đơn hàng
+            th Ngày đặt
+            th Người nhận
+            th Tổng tiền
+            th Trạng thái
+        tbody
+          each order in orders
+            tr
+              td.font-bold #{"#" + order._id.toString().slice(-6).toUpperCase()}
+              td= new Date(order.createdAt).toLocaleDateString('vi-VN')
+              td= order.customer ? order.customer.name : "N/A"
+              td.text-gold.font-bold= order.totalAmount.toLocaleString('vi-VN') + " đ"
+              td
+                if order.status === 'completed'
+                  span.status-done Hoàn thành
+                else if order.status === 'cancelled'
+                  span.status-cancelled Đã hủy
+                else
+                  span.status-pending Đang xử lý
+    else
+      .text-center.py-10.text-gray-400
+        i.fas.fa-box-open.text-4xl.mb-4
+        p Người dùng này chưa có đơn hàng nào.

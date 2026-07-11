@@ -1,0 +1,54 @@
+doctype html
+html(lang="vi")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title PNShop | Bảng điều khiển quản trị
+    script(src="https://cdn.tailwindcss.com")
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css")
+    link(href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;600&display=swap", rel="stylesheet")
+    style.
+      :root {
+        --pn-gold: #d4af37;
+        --pn-dark: #1a1a1a;
+        --pn-cream: #fffcf5;
+      }
+      body { font-family: 'Poppins', sans-serif; background-color: var(--pn-cream); }
+      .sidebar-wrapper { display: flex; flex-direction: column; height: 100vh; overflow-y: auto; }
+      .sidebar-item { transition: 0.3s; color: #888; padding: 12px 20px; font-size: 0.9rem; display: flex; align-items: center; gap: 12px; }
+      .sidebar-item.active { background-color: var(--pn-dark); color: var(--pn-gold) !important; border-right: 3px solid var(--pn-gold); }
+      .sidebar-item:hover { background-color: #252525; color: white; }
+      .pn-font { font-family: 'Playfair Display', serif; }
+
+  body.flex.min-h-screen
+    
+    //- SIDEBAR
+    nav(class="w-72 bg-[#1a1a1a] fixed h-full border-r border-[#333] sidebar-wrapper")
+      div(class="p-6")
+        .text-2xl.font-bold.text-white.mb-8.text-center.pn-font(style="font-style:italic")
+          | PNShop
+          span(class="text-[#d4af37] block text-xs font-normal tracking-[0.2em] uppercase mt-1") Bảng quản trị
+        
+        ul.space-y-1
+          - var navItems = [{href: "/admin", icon: "fa-leaf", label: "Quản lý sản phẩm"}, {href: "/admin/library", icon: "fa-book-open", label: "Thư viện thực vật"}, {href: "/admin/users", icon: "fa-user-shield", label: "Đội ngũ quản trị"}, {href: "/admin/orders", icon: "fa-shopping-basket", label: "Đơn hàng mới", badge: (typeof pendingCount !== 'undefined' ? pendingCount : 0)}, {href: "/admin/analytics", icon: "fa-chart-line", label: "Báo cáo doanh thu"}, {href: "/admin/blog/create", icon: "fa-pen-nib", label: "Viết bài blog"}, {href: "/admin/vouchers", icon: "fa-ticket-alt", label: "Quản lý ưu đãi"}, {href: "/admin/import-history", icon: "fa-archive", label: "Lịch sử nhập kho"}]
+          
+          each item in navItems
+            li
+              a(href=item.href, class="sidebar-item " + (path === item.href ? 'active' : ''))
+                i(class="fas " + item.icon + " w-5")
+                span= item.label
+                if item.badge && item.badge > 0
+                  span(class="ml-auto bg-[#d4af37] text-black text-[9px] px-2 py-0.5 rounded-full font-bold")= item.badge
+
+      //- FOOTER SIDEBAR
+      .mt-auto.pt-4.pb-4(class="border-t border-[#333]")
+        a(href="/", class="flex items-center gap-4 p-4 text-gray-400 hover:text-white text-sm transition")
+          i.fas.fa-store
+          | Xem trang chủ
+        a(href="/logout", class="flex items-center gap-4 p-4 text-[#d4af37] hover:bg-[#252525] text-sm transition")
+          i.fas.fa-sign-out-alt
+          | Đăng xuất
+
+    //- MAIN CONTENT
+    main(class="flex-1 ml-72 p-12")
+      block content

@@ -1,0 +1,57 @@
+
+extends layout
+include mixins  
+block content
+  //- 1. HERO
+  section(style="padding: 40px 8% 20px 8%; text-align: center; background: #fffcf5; border-bottom: 1px solid #d4af37;")
+    h1(style="font-family: 'Playfair Display', serif; font-size: 2.6rem; color: #1a1a1a; margin-bottom: 5px; font-style: italic;") Danh mục sản phẩm
+    p(style="font-family: 'Poppins', sans-serif; font-size: 0.8rem; color: #888; letter-spacing: 3px; text-transform: uppercase;") Lựa chọn vẻ đẹp của riêng bạn
+    
+    //- Thanh tìm kiếm
+    form(action="/explore" method="GET" style="max-width: 500px; margin: 30px auto 0 auto; display: flex; border: 2px solid #1a1a1a; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.05);")
+      input(type="text" name="keyword" placeholder="Tìm kiếm bó hoa hoàn hảo..." value=keyword style="flex: 1; padding: 12px 20px; border: none; outline: none; font-family: 'Poppins'; font-size: 0.95rem; color: #333;")
+      button(type="submit" style="padding: 12px 25px; background: #1a1a1a; border: none; cursor: pointer; color: white; transition: 0.3s;") 
+        i.fas.fa-search
+
+  //- 2. CATEGORY FILTER
+  if groupedFlowers && Object.keys(groupedFlowers).length > 0
+    section(style="padding: 40px 8%; text-align: center;")
+      each categoryName in Object.keys(groupedFlowers)
+        a(href=`#cat-${categoryName.replace(/\s+/g, '-')}` style="margin: 0 10px; color: #d4af37; text-decoration: none; font-family: 'Poppins'; font-size: 0.9rem;")= categoryName
+    
+    +sectionDivider
+
+  //- 3. PRODUCT GRID
+  main(style="padding: 0 8% 80px 8%;")
+    if groupedFlowers && Object.keys(groupedFlowers).length > 0
+      each categoryName in Object.keys(groupedFlowers)
+        .category-block(id=`cat-${categoryName.replace(/\s+/g, '-')}`)
+          //- Tiêu đề căn giữa với đường kẻ trang trí
+          div(style="margin: 60px 0 40px 0; display: flex; align-items: center; justify-content: center; gap: 20px;")
+            div(style="height: 1px; width: 60px; background: #e0c9a6;")
+            h2(style="font-family: 'Playfair Display', serif; font-size: 2rem; color: #1a1a1a; font-style: italic; margin: 0;")= categoryName
+            div(style="height: 1px; width: 60px; background: #e0c9a6;")
+          
+          .grid-container(style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 40px;")
+            each flower in groupedFlowers[categoryName]
+              +productCard(flower, "#d4af37")
+    else
+      div(style="text-align: center; padding: 100px 0; font-family: 'Playfair Display', serif; font-style: italic;")
+        p Không tìm thấy sản phẩm phù hợp.
+
+  //- 4. CLOSING MESSAGE
+  section(style="padding: 80px 8%; text-align: center; border-top: 1px solid #e0c9a6; margin-top: 60px; background: #fffcf5;")
+    div(style="max-width: 600px; margin: 0 auto;")
+      div(style="font-size: 1.5rem; color: #d4af37; margin-bottom: 20px;")
+        i.fas.fa-leaf
+      
+      h3(style="font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #1a1a1a; margin-bottom: 20px; font-style: italic;") Cảm ơn bạn đã lựa chọn PNShop
+      
+      p(style="font-family: 'Poppins', sans-serif; font-size: 0.95rem; color: #777; line-height: 1.8; letter-spacing: 0.5px;") 
+        | Chúng tôi hy vọng bạn đã tìm thấy bó hoa hoàn hảo để làm bừng sáng ngày mới hoặc tôn vinh những khoảnh khắc đặc biệt. 
+        | Nếu bạn cần hỗ trợ thêm hoặc muốn đặt một thiết kế riêng, khu vườn của chúng tôi luôn sẵn lòng phục vụ bạn.
+      
+      div(style="margin-top: 30px; font-family: 'Playfair Display', serif; font-size: 1.1rem; color: #1a1a1a; font-style: italic;")
+        | Trân trọng, 
+        br
+        | Đội ngũ PNShop

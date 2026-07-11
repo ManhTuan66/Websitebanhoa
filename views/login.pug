@@ -1,0 +1,64 @@
+doctype html
+html(lang="vi")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title Đăng nhập | PNShop
+    link(href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet")
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css")
+    script(src="https://cdn.tailwindcss.com")
+    style.
+      body { font-family: 'Montserrat', sans-serif; background: #fff5f7; }
+      .login-box { 
+        background: #ffffff; 
+        border: 2px solid #e11d48; /* Viền hồng đậm */
+        box-shadow: 0 25px 50px -12px rgba(225, 29, 72, 0.15);
+      }
+      .rose-deep { color: #881337; } /* Hồng đậm cổ điển */
+      .leaf-green { color: #064e3b; } /* Xanh lá đậm */
+      .rose-btn { 
+        background: #064e3b; /* Xanh lá đậm cho nút để tạo sự sang trọng */
+        color: white; 
+        font-weight: 700; 
+        transition: 0.3s; 
+      }
+      .rose-btn:hover { background: #065f46; }
+      h1 { font-family: 'Playfair Display', serif; font-style: italic; color: #881337; }
+      input { background: #fff1f2 !important; border: 1px solid #fda4af !important; color: #4c0519 !important; }
+      input:focus { border-color: #064e3b !important; outline: none; }
+      .icon-accent { color: #064e3b; } /* Icon màu lá */
+
+  body(class="flex items-center justify-center min-h-screen p-4")
+
+    div(class="login-box p-10 rounded-[3rem] w-full max-w-md")
+      h1(class="text-4xl font-extrabold mb-2 text-center") 🌹 PNShop
+      p(class="text-rose-400 mb-8 font-medium text-center italic") Nơi lưu giữ vẻ đẹp cổ điển
+      
+      if (error)
+        div(class="bg-rose-50 text-rose-600 p-4 rounded-xl mb-6 font-medium text-sm border border-rose-200") 
+          i.fas.fa-exclamation-circle.mr-2
+          = error
+      
+      form(action="/login", method="POST", class="space-y-6")
+        div
+          label(class="block text-xs font-bold leaf-green uppercase tracking-widest mb-2") 
+            i.fas.fa-user.mr-2.icon-accent
+            | Tên đăng nhập
+          input(type="text", name="username", required, class="w-full px-5 py-4 rounded-2xl transition")
+        
+        div
+          label(class="block text-xs font-bold leaf-green uppercase tracking-widest mb-2") 
+            i.fas.fa-lock.mr-2.icon-accent
+            | Mật khẩu
+          input(type="password", name="password", required, class="w-full px-5 py-4 rounded-2xl transition")
+        
+        button(type="submit", class="w-full rose-btn py-4 rounded-2xl transition shadow-lg mt-4 uppercase tracking-widest") Đăng nhập
+
+        // Nút quay lại
+        div(class="mt-8 pt-6 border-t border-rose-50 text-center")
+          a(href="/" class="inline-flex items-center leaf-green hover:text-rose-600 transition text-sm font-bold")
+            i.fas.fa-arrow-left.mr-2
+            | VỀ TRANG CHỦ
+        
+        p(class="text-center text-slate-400 mt-6 text-sm") Bạn chưa có tài khoản? 
+          a(href="/register", class="rose-deep font-bold hover:underline ml-1") Đăng ký ngay

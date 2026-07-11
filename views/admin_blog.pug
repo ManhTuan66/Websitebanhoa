@@ -1,0 +1,132 @@
+extends layout_admin
+
+block content
+  style.
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap');
+    
+    :root { 
+      --gold: #d4af37; 
+      --dark: #1a1a1a; 
+      --white: #ffffff;
+      --pink-main: #E91E63; 
+    }
+
+    .admin-main { background-color: #fcfcfc; padding: 40px; font-family: 'Montserrat', sans-serif; }
+    h2, h3 { font-family: 'Playfair Display', serif; }
+
+    .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid var(--gold); padding-bottom: 20px; }
+    .admin-header h2 { color: var(--dark); font-weight: 700; font-style: italic; margin: 0; }
+
+    .btn-add { 
+      background: var(--dark); color: var(--white); border: 1px solid var(--gold); 
+      padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.3s;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .btn-add:hover { background: var(--gold); color: white; border-color: var(--dark); }
+
+    /* Form Style */
+    .modal-form { 
+      background: white; padding: 35px; border-radius: 20px; 
+      border: 1px solid #eee; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 40px;
+    }
+    .form-group label { display: block; margin-bottom: 10px; font-weight: 700; font-size: 13px; color: #555; }
+    .form-group input, .form-group textarea { 
+      width: 100%; padding: 14px; margin-bottom: 20px; border: 1px solid #ddd; 
+      border-radius: 10px; outline: none; background: #fdfdfd; transition: 0.3s;
+    }
+    .form-group input:focus { border-color: var(--gold); }
+
+    /* Table Style */
+    .admin-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    .admin-table th { padding: 15px; text-align: left; color: #888; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; border-bottom: 2px solid #eee; }
+    .admin-table td { padding: 20px 15px; border-bottom: 1px solid #f9f9f9; color: #444; font-weight: 600; }
+    .admin-table img { border-radius: 10px; width: 60px; height: 60px; object-fit: cover; border: 1px solid #eee; }
+    
+    .status-badge { 
+      background: #fdf5e6; color: var(--gold); padding: 5px 12px; 
+      border-radius: 6px; font-size: 0.75rem; border: 1px solid var(--gold); 
+    }
+    .action-icon { font-size: 1.2rem; cursor: pointer; transition: 0.3s; }
+    .action-icon:hover { transform: scale(1.2); color: var(--gold); }
+
+  .admin-header
+    h2 🖋️ Quản lý bài viết
+    button.btn-add(onclick="toggleBlogForm()") 
+      i.fas.fa-plus-circle
+      | Viết bài mới
+
+  // Form viết bài
+  section#blog-form.modal-form(style="display:none")
+    form(action="/admin/blog/save", method="POST", enctype="multipart/form-data")
+      h3(style="color: var(--dark); margin-top:0; margin-bottom: 25px;") 
+        i.fas.fa-magic(style="color: var(--gold); margin-right: 10px;")
+        | Soạn thảo nội dung
+      
+      .form-group
+        label Tiêu đề:
+        input(type="text", name="title", placeholder="Nhập tiêu đề hấp dẫn...", required)
+      
+      .form-group
+        label Ảnh bìa:
+        input(type="file", name="image", accept="image/*", required)
+      
+      .form-group
+        label Nội dung:
+        textarea(name="content", rows="8", placeholder="Chia sẻ kiến thức của bạn...", required)
+      
+      .form-btns(style="display: flex; gap: 12px;")
+        button(type="submit" style="background: var(--dark); color: var(--gold); border: 1px solid var(--gold); padding: 12px 30px; border-radius: 8px; cursor: pointer; font-weight: 700;") Đăng bài
+        button(type="button", onclick="toggleBlogForm()" style="background: #f5f5f5; color: #888; border: none; padding: 12px 30px; border-radius: 8px; cursor: pointer; font-weight: 700;") Hủy
+
+  // Bảng Blog
+  table.admin-table
+    thead
+      tr
+        th Hình ảnh
+        th Tiêu đề
+        th Ngày đăng
+        th Trạng thái
+        th Thao tác
+    tbody
+      if posts && posts.length > 0
+        each post in posts
+          tr
+            td: img(src=post.image)
+            td
+              strong(style="color: var(--dark); font-family: 'Playfair Display';")= post.title
+            td= new Date(post.createdAt).toLocaleDateString('vi-VN')
+            td: span.status-badge ĐÃ ĐĂNG
+            td
+              div(style="display: flex; gap: 15px;")
+                a(href=`/admin/blog/edit/${post._id}` style="color: var(--dark);")
+                  i.fas.fa-edit.action-icon
+                a(href=`#` onclick=`deletePost('${post._id}')` style="color: #ff7675;")
+                  i.fas.fa-trash-alt.action-icon
+      else
+        tr
+          td(colspan="5", style="text-align: center; padding: 40px; color: #888;") Chưa có bài viết nào.
+
+  script.
+    function toggleBlogForm() {
+      const form = document.getElementById('blog-form');
+      form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
+      if(form.style.display === 'block') {
+        form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    function deletePost(id) {
+      if(confirm('Bạn có chắc chắn muốn xóa bài viết này không?')) {
+        fetch(`/admin/blog/delete/${id}`, { method: 'DELETE' })
+          .then(res => res.json())
+          .then(data => { 
+            if(data.success) {
+              alert('Đã xóa bài viết thành công!');
+              window.location.reload(); 
+            } else {
+              alert('Có lỗi xảy ra khi xóa bài.');
+            }
+          })
+          .catch(err => alert('Lỗi kết nối!'));
+      }
+    }

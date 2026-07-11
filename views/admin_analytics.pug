@@ -1,0 +1,108 @@
+extends layout_admin
+
+block content
+  style.
+    /* PNShop Gold & Dark Theme */
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap');
+
+    :root { --gold: #d4af37; --dark: #1a1a1a; --white: #ffffff; }
+
+    .admin-main { background-color: #fcfcfc; padding: 40px; font-family: 'Montserrat', sans-serif; }
+    h2, h3 { font-family: 'Playfair Display', serif; }
+
+    .page-header { border-bottom: 2px solid var(--gold); padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
+    .page-header h2 { color: var(--dark); font-weight: 700; font-style: italic; letter-spacing: 1px; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-bottom: 40px; }
+    .stat-card { background: var(--dark); color: white; padding: 30px; border-radius: 20px; border-bottom: 4px solid var(--gold); display: flex; align-items: center; gap: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+    .icon-box { width: 50px; height: 50px; border-radius: 50%; background: var(--gold); color: black; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+    .stat-info h3 { font-size: 0.75rem; color: #bbb; text-transform: uppercase; margin: 0; font-family: 'Montserrat'; }
+    .stat-info p { font-size: 1.5rem; font-weight: 700; margin: 5px 0 0; color: var(--gold); }
+
+    .data-section { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
+    .table-container { background: white; padding: 30px; border-radius: 20px; border: 1px solid #eee; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+    .table-container h3 { color: var(--dark); margin-bottom: 25px; border-left: 4px solid var(--gold); padding-left: 15px; font-size: 1.4rem; }
+
+    /* Bảng được căn chỉnh thẳng hàng */
+    .admin-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .admin-table th { color: #888; font-size: 0.7rem; text-transform: uppercase; padding: 15px; border-bottom: 2px solid #f0f0f0; text-align: left; }
+    .admin-table td { padding: 15px; border-bottom: 1px solid #f9f9f9; color: #444; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    
+    .bar-container { background: #fdf5e6; height: 8px; border-radius: 10px; width: 100px; overflow: hidden; }
+    .bar-fill { background: var(--gold); height: 100%; border-radius: 10px; }
+
+    .btn-reset { background: var(--dark); color: white; border: 1px solid var(--gold); padding: 12px 25px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-reset:hover { background: var(--gold); color: white; border-color: var(--dark); }
+    .customer-badge { background: #fcfcfc; border: 1px solid var(--gold); color: var(--dark); padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; }
+
+  .page-header
+    h2 📊 Báo cáo tài chính
+    a.btn-reset(href="/admin/clear-orders" onclick="return confirm('Bạn có chắc chắn muốn xóa toàn bộ dữ liệu báo cáo?')") 
+      i.fas.fa-sync-alt
+      | Đặt lại báo cáo
+
+  .stats-grid
+    .stat-card
+      .icon-box: i.fas.fa-coins
+      .stat-info
+        h3 Tổng doanh thu
+        p= stats.totalRevenue.toLocaleString('vi-VN') + ' đ'
+    .stat-card
+      .icon-box: i.fas.fa-shopping-basket
+      .stat-info
+        h3 Tổng chi phí
+        p= stats.totalCost.toLocaleString('vi-VN') + ' đ'
+    .stat-card
+      .icon-box: i.fas.fa-hand-holding-usd
+      .stat-info
+        h3 Lợi nhuận ròng
+        p(style="color:#2ecc71")= stats.totalProfit.toLocaleString('vi-VN') + ' đ'
+
+  .data-section
+    .table-container
+      h3 Hoa bán chạy nhất
+      table.admin-table
+        thead
+          tr
+            th(width="50%") Tên sản phẩm
+            th(width="20%") Đã bán
+            th(width="30%") Tiến độ
+        tbody
+          - const maxQty = stats.topFlowers.length > 0 ? Math.max(...stats.topFlowers.map(f => f.qty)) : 1
+          each flower in stats.topFlowers
+            tr
+              td(style="font-family: 'Playfair Display'; font-weight: 700;")= flower.name
+              td= flower.qty
+              td: .bar-container: .bar-fill(style=`width: ${(flower.qty/maxQty)*100}%`)
+    
+    .table-container
+      h3 Doanh thu theo ngày
+      table.admin-table
+        thead
+          tr
+            th(width="50%") Ngày tháng
+            th(width="50%") Doanh thu
+        tbody
+          each day in stats.dailyReport
+            tr
+              td= new Date(day.date).toLocaleDateString('vi-VN')
+              td(style="color: var(--gold); font-weight: 700;")= day.amount.toLocaleString('vi-VN') + ' đ'
+
+  .table-container
+    h3 Khách hàng thân thiết
+    table.admin-table
+      thead
+        tr
+          th(width="20%") Khách hàng
+          th(width="20%") Người nhận
+          th(width="15%") SĐT
+          th(width="15%" style="text-align: center") Đơn hoàn tất
+          th(width="30%" style="text-align: right") Tổng chi tiêu
+      tbody
+        each user in stats.monthlyCustomers
+          tr
+            td(style="color: var(--gold); font-family: 'Playfair Display'; font-size: 1.1rem;")= user.name
+            td= user.receiverName
+            td= user.phone
+            td(style="text-align: center"): span.customer-badge #{user.orderCount} đơn
+            td(style="font-weight: 800; text-align: right;")= user.totalSpent.toLocaleString('vi-VN') + ' đ'

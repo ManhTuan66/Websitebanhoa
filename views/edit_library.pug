@@ -1,0 +1,170 @@
+extends layout_admin
+
+block content
+  style.
+    :root {
+      --gold-main: #c5a059;
+      --gold-dark: #8b6e3f;
+      --cream-bg: #fcfaf5;
+      --charcoal: #1a1a1a;
+      --border-color: #d1ccc0;
+    }
+
+    body {
+      background-color: var(--cream-bg);
+      color: var(--charcoal);
+    }
+
+    .edit-card {
+      background: #ffffff;
+      padding: 60px;
+      border: 1px solid var(--border-color);
+      max-width: 950px;
+      margin: 0 auto;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      color: var(--gold-dark);
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 1.5rem;
+      margin: 50px 0 25px;
+      border-bottom: 1px solid var(--gold-main);
+      padding-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .form-label {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      color: var(--charcoal);
+      margin-bottom: 10px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      display: block;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 15px;
+      border: 1px solid var(--border-color);
+      background: #fdfdfd;
+      border-radius: 0;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.95rem;
+      box-sizing: border-box;
+      transition: 0.3s;
+    }
+
+    .form-control:focus {
+      border-color: var(--gold-main);
+      outline: none;
+      background: #fff;
+    }
+
+    .row { display: grid; grid-template-columns: repeat(12, 1fr); gap: 25px; margin-bottom: 20px; }
+    .col-6 { grid-column: span 6; }
+    .col-4 { grid-column: span 4; }
+    .col-12 { grid-column: span 12; }
+
+    .image-preview-box {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      background: #f9f9f9;
+      padding: 30px;
+      border: 1px solid var(--border-color);
+    }
+
+    .image-preview-box img {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-update {
+      background: var(--charcoal);
+      color: #fff;
+      border: 0;
+      padding: 18px 50px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: 0.4s;
+    }
+
+    .btn-update:hover {
+      background: var(--gold-dark);
+    }
+
+  .edit-card
+    h2(style="font-family: 'Playfair Display', serif; color: var(--charcoal); text-align: center; font-size: 2.8rem; font-style: italic; margin-bottom: 5px;") 
+      | Quản trị viên
+    p(style="text-align: center; color: var(--gold-main); font-family: 'Outfit', sans-serif; text-transform: uppercase; letter-spacing: 4px; margin-bottom: 50px;")
+      | Sổ tay Thực vật học — PNShop
+
+    form(action=`/admin/library/edit/${item._id}`, method="POST", enctype="multipart/form-data")
+      - const tax = item.taxonomy || {}
+      - const mor = item.morphology || {}
+      - const eco = item.ecology || {}
+      - const her = item.heritage || {}
+
+      .section-header 
+        i.fas.fa-dna
+        | I. Định danh & Phân loại
+      .row
+        .col-6
+          label.form-label Tên thông thường
+          input.form-control(name="common_name", value=item.common_name, required)
+        .col-6
+          label.form-label Tên khoa học
+          input.form-control(name="scientific_name", value=item.scientific_name, required)
+        .col-4
+          label.form-label Họ (Family)
+          input.form-control(name="family", value=tax.family)
+        .col-4
+          label.form-label Chi (Genus)
+          input.form-control(name="genus", value=tax.genus)
+        .col-4
+          label.form-label Bộ (Order)
+          input.form-control(name="order", value=tax.order)
+
+      .section-header 
+        i.fas.fa-leaf
+        | II. Đặc điểm sinh thái
+      .row
+        .col-6
+          label.form-label Mô tả hoa
+          textarea.form-control(name="flower_desc", rows="4")= mor.flower
+        .col-6
+          label.form-label Lá & Thân
+          textarea.form-control(name="leaf_desc", rows="4")= mor.leaf
+        .col-4
+          label.form-label Độ pH đất
+          input.form-control(name="ph", value=eco.soil_ph)
+        .col-4
+          label.form-label Nhiệt độ
+          input.form-control(name="temp", value=eco.temperature)
+        .col-4
+          label.form-label Nguồn gốc
+          input.form-control(name="origin", value=eco.origin)
+
+      .section-header 
+        i.fas.fa-history
+        | III. Di sản & Hình ảnh
+      .image-preview-box
+        img(src=item.image, alt="Hình ảnh hiện tại")
+        div(style="flex: 1;")
+          label.form-label Thay đổi hình minh họa
+          input.form-control(type="file", name="image")
+
+      .text-end(style="margin-top: 60px; border-top: 1px solid var(--border-color); padding-top: 30px; text-align: right;")
+        a(href="/admin/library" style="margin-right: 30px; color: #888; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; text-decoration: none;") Hủy bỏ
+        button.btn-update(type="submit") Lưu thay đổi

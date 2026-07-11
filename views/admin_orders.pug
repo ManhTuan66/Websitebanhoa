@@ -1,0 +1,133 @@
+extends layout_admin
+
+block content
+  style.
+    .text-gold { color: #d4af37 !important; }
+    .day-group-header { background: #1a1a1a; color: #d4af37; padding: 12px 25px; margin-top: 35px; border-radius: 8px; font-weight: 700; border-left: 4px solid #d4af37; text-transform: uppercase; letter-spacing: 1px; font-size: 0.9rem; }
+    
+    .admin-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+    .admin-table td { padding: 15px; background: white; border-top: 1px solid #f5f5f5; border-bottom: 1px solid #f5f5f5; }
+    .admin-table td:nth-child(5) {
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+    
+    .status-badge { 
+      padding: 5px 8px; 
+      border-radius: 4px; 
+      font-size: 9px; /* Giảm nhẹ size chữ để tiết kiệm không gian */
+      font-weight: 700; 
+      text-transform: uppercase;
+      display: inline-block;
+      white-space: nowrap; /* Ép không xuống dòng */
+      text-align: center;
+      min-width: 75px;    /* Đặt độ rộng tối thiểu để các badge đều nhau */
+    }
+    .status-pending { background: #fffdf0; color: #d4af37; border: 1px solid #d4af37; }
+    .status-shipping { background: #f0f7ff; color: #1976d2; border: 1px solid #1976d2; }
+    .status-completed { background: #f0fff4; color: #2e7d32; border: 1px solid #2e7d32; }
+    .status-cancelled { background: #fff5f5; color: #c62828; border: 1px solid #c62828; }
+    
+    .btn-elegant { border: 1px solid #ddd; padding: 6px 12px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; background: white; transition: 0.3s; color: #333; margin-bottom: 4px; width: 100%; }
+    .btn-elegant:hover { border-color: #d4af37; color: #d4af37; }
+    .btn-action { border: none; padding: 6px 12px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; width: 100%; margin-bottom: 4px; color: white; }
+    .btn-approve { background: #d4af37; }
+    .btn-complete { background: #2ecc71; }
+    .btn-cancel { background: #ff4757; }
+
+    .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); display:none; align-items:center; justify-content:center; z-index:1000; backdrop-filter: blur(3px); }
+    .order-detail-card { background: white; width: 450px; border-radius: 16px; padding: 0; box-shadow: 0 15px 35px rgba(0,0,0,0.2); display: flex; flex-direction: column; max-height: 90vh; }
+    .modal-body-bill { padding: 25px; overflow-y: auto; flex-grow: 1; }
+    .bill-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
+    .proof-img { width: 100%; margin-top: 15px; border-radius: 8px; border: 2px solid #f0f0f0; cursor: pointer; transition: 0.3s; }
+    .proof-img:hover { border-color: #d4af37; transform: scale(1.02); }
+
+    .btn-elegant, .btn-action {
+      white-space: nowrap;
+      padding: 6px 10px;
+    }
+
+  header.mb-8
+    h2(class="text-2xl font-bold italic") 📦 Quản lý đơn hàng
+    p.text-gray-500 Xử lý và theo dõi đơn hàng của khách hàng.
+
+  if orders && orders.length > 0
+    - var lastDate = ""
+    each order in orders
+      - var dateString = new Date(order.createdAt).toLocaleDateString('vi-VN')
+      if dateString !== lastDate
+        - lastDate = dateString
+        .day-group-header Ngày: #{dateString}
+        
+      table.admin-table
+        tr
+          td(width="10%")
+            strong.text-gold= new Date(order.createdAt).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'})
+          td(width="20%")
+            div.font-bold= (order.customer && order.customer.name) ? order.customer.name : 'Khách vãng lai'
+            small.text-gray-400= (order.customer && order.customer.phone) ? order.customer.phone : 'N/A'
+          td(width="30%")
+            each item in order.items
+              div(style="font-size: 11px;") • #{item.name} #[span.text-gold (x#{item.qty})]
+          td(width="15%").font-bold= (order.totalAmount || 0).toLocaleString('vi-VN') + ' đ'
+          td(width="10%")
+            span(class=`status-badge status-${order.status}`)= order.status === 'pending' ? 'Chờ duyệt' : (order.status === 'shipping' ? 'Đang giao' : (order.status === 'completed' ? 'Hoàn thành' : 'Đã hủy'))
+          td(width="15%")
+            button.btn-elegant(onclick=`showDetail(${JSON.stringify(order)})`) Chi tiết
+            if order.status === 'pending'
+              form(action=`/admin/orders/update-status/${order._id}` method="POST")
+                input(type="hidden" name="status" value="shipping")
+                button.btn-action.btn-approve(type="submit") Duyệt
+              form(action=`/admin/orders/update-status/${order._id}` method="POST")
+                input(type="hidden" name="status" value="cancelled")
+                button.btn-action.btn-cancel(type="submit") Hủy
+            else if order.status === 'shipping'
+              form(action=`/admin/orders/update-status/${order._id}` method="POST")
+                input(type="hidden" name="status" value="completed")
+                button.btn-action.btn-complete(type="submit") Hoàn tất
+
+  #detailModal.modal-overlay(onclick="closeDetail()")
+    .order-detail-card(onclick="event.stopPropagation()")
+      .modal-header-bill(style="text-align: center; padding: 20px; background: #1a1a1a; color: #d4af37;")
+        h3(style="margin:0; font-size: 1.2rem; text-transform:uppercase; letter-spacing: 2px;") HÓA ĐƠN ĐƠN HÀNG
+        small#modal-order-id(style="color: #666; font-size: 0.7rem; display: block; margin-top: 5px;")
+      .modal-body-bill#modal-content
+      div(style="padding: 20px; border-top: 1px solid #eee;")
+        button.btn-elegant(onclick="closeDetail()" style="width:100%; border-color:#1a1a1a; margin:0;") Đóng
+
+  script.
+    function showDetail(order) {
+      document.getElementById('modal-order-id').innerText = 'MÃ ĐƠN HÀNG: ' + order._id;
+      let html = `
+        <div style="margin-bottom: 20px;">
+          <h4 style="margin:0 0 10px 0; font-size: 0.8rem; color:#d4af37; text-transform:uppercase;">Thông tin nhận hàng</h4>
+          <div class="bill-row"><span>Người nhận:</span><strong>${order.customer?.name || 'Khách vãng lai'}</strong></div>
+          <div class="bill-row"><span>SĐT:</span><strong>${order.customer?.phone || 'N/A'}</strong></div>
+          <div class="bill-row"><span>Địa chỉ:</span><strong>${order.customer?.address || 'N/A'}</strong></div>
+        </div>
+        <div style="margin-bottom: 20px;">
+          <h4 style="margin:0 0 10px 0; font-size: 0.8rem; color:#d4af37; text-transform:uppercase;">Thông tin người gửi</h4>
+          <div class="bill-row"><span>Tên người gửi:</span><strong>${order.senderName || 'N/A'}</strong></div>
+          <div class="bill-row"><span>SĐT người gửi:</span><strong>${order.senderPhone || 'N/A'}</strong></div>
+        </div>
+        <div style="border-top: 2px dashed #eee; padding-top: 15px;">
+          <div class="bill-row" style="font-size: 1.1rem;">
+            <span>Tổng cộng:</span>
+            <strong style="color:#d4af37;">${order.totalAmount.toLocaleString('vi-VN')} đ</strong>
+          </div>
+        </div>
+      `;
+      if (order.paymentProof) {
+        html += `
+          <div style="margin-top:20px;">
+            <p style="font-size:0.8rem; font-weight:bold; color:#555; margin-bottom:5px;">Ảnh minh chứng thanh toán:</p>
+            <img src="${order.paymentProof}" class="proof-img" onclick="window.open('${order.paymentProof}')" title="Xem ảnh đầy đủ">
+          </div>
+        `;
+      } else {
+        html += `<p style="font-size:12px; color:#999; margin-top:10px; font-style:italic;">Không có ảnh minh chứng.</p>`;
+      }
+      document.getElementById('modal-content').innerHTML = html;
+      document.getElementById('detailModal').style.display = 'flex';
+    }
+    function closeDetail() { document.getElementById('detailModal').style.display = 'none'; }

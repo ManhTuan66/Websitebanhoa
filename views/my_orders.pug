@@ -1,0 +1,69 @@
+extends layout
+
+block content
+  style.
+    .order-history-container { max-width: 850px; margin: 60px auto; padding: 0 20px; min-height: 60vh; }
+    .page-header { 
+      font-family: 'Playfair Display', serif; font-style: italic; 
+      font-size: 2rem; color: #1a1a1a; margin-bottom: 50px; text-align: center;
+    }
+    
+    .order-item-card {
+      background: white; border: 1px solid #eee; padding: 30px; margin-bottom: 25px;
+      transition: 0.3s;
+    }
+    .order-item-card:hover { border-color: #d4af37; }
+    
+    .order-header { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px; }
+    .order-id { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1rem; color: #1a1a1a; }
+    
+    .status { font-size: 0.7rem; font-weight: 600; padding: 5px 12px; text-transform: uppercase; letter-spacing: 1px; }
+    .status-pending { border: 1px solid #fd7e14; color: #fd7e14; }
+    .status-completed { border: 1px solid #40c057; color: #40c057; }
+    .status-cancelled { border: 1px solid #adb5bd; color: #adb5bd; }
+
+    .product-line { display: flex; justify-content: space-between; font-size: 0.85rem; color: #555; margin-bottom: 8px; }
+    .total-price { text-align: right; font-weight: 700; color: #1a1a1a; font-size: 1.1rem; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; }
+    
+    .btn-detail {
+      text-decoration: none; display: inline-block;
+      border: 1px solid #1a1a1a; color: #1a1a1a; padding: 10px 25px;
+      font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px;
+      transition: 0.3s;
+    }
+    .btn-detail:hover { background: #1a1a1a; color: white; border-color: #1a1a1a; }
+
+  .order-history-container
+    h2.page-header Đơn hàng của tôi
+    
+    if orders && orders.length > 0
+      each order in orders
+        .order-item-card
+          .order-header
+            span.order-id Đơn hàng ##{order._id.toString().slice(-8).toUpperCase()}
+            div
+              if order.status === 'pending'
+                span.status.status-pending Chờ xử lý
+              else if order.status === 'completed'
+                span.status.status-completed Hoàn thành
+              else
+                span.status.status-cancelled Đã hủy
+          
+          .order-details
+            p(style="font-size: 0.75rem; color: #999; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;") 
+              | Ngày đặt: #{new Date(order.createdAt).toLocaleDateString('vi-VN')}
+            each item in order.items
+              .product-line
+                span #{item.name} #[span(style="color:#999;") x#{item.qty}]
+                span #{ (item.price * item.qty).toLocaleString('vi-VN') } đ
+          
+          .total-price
+            span(style="font-size: 0.8rem; font-weight: 400; color: #888; margin-right: 15px;") Tổng cộng:
+            | #{order.totalAmount.toLocaleString('vi-VN')} đ
+          
+          .order-footer(style="margin-top: 25px; text-align: right;")
+            a.btn-detail(href=`/order-detail/${order._id}`) Xem chi tiết
+    else
+      div(style="text-align: center; padding: 80px; color: #bbb; border: 1px dashed #eee;")
+        p(style="font-family: 'Playfair Display'; font-style: italic;") Chưa có đơn hàng nào được tìm thấy.
+        a(href="/" style="color: #d4af37; text-decoration: none; font-size: 0.8rem;") ← Tiếp tục mua sắm

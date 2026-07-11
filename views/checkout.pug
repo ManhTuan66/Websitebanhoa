@@ -1,0 +1,103 @@
+extends layout
+
+block content
+  style.
+    .checkout-container { max-width: 1000px; margin: 60px auto; padding: 0 20px; }
+    .page-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-style: italic; color: #1a1a1a; text-align: center; margin-bottom: 50px; }
+    
+    .checkout-grid { display: grid; grid-template-columns: 1fr 380px; gap: 50px; }
+    @media (max-width: 992px) { .checkout-grid { grid-template-columns: 1fr; } }
+
+    .card-custom { background: #fff; padding: 40px; border: 1px solid #eee; }
+    h4 { font-family: 'Playfair Display', serif; font-size: 1.2rem; margin-bottom: 25px; padding-bottom: 10px; border-bottom: 1px solid #d4af37; color: #1a1a1a; }
+    
+    .sender-info-box { background: #f9f9f9; padding: 20px; border-left: 3px solid #d4af37; margin-bottom: 25px; }
+    .sender-info-line { display: flex; margin-bottom: 8px; font-size: 0.9rem; }
+    .sender-info-line strong { width: 120px; color: #888; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1px; }
+
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 8px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #555; }
+    .form-control { width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 0; outline: none; box-sizing: border-box; }
+    .form-control:focus { border-color: #d4af37; }
+
+    .payment-label { display: flex; align-items: center; gap: 15px; padding: 15px; border: 1px solid #eee; cursor: pointer; transition: 0.3s; }
+    .payment-item input:checked + .payment-label { border-color: #d4af37; background: #fffdf8; }
+    
+    .btn-submit { width: 100%; background: #1a1a1a; color: white; border: none; padding: 18px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; transition: 0.3s; margin-top: 20px; }
+    .btn-submit:hover { background: #d4af37; }
+
+  .checkout-container
+    h2.page-title Hoàn tất đơn hàng
+    
+    form.checkout-grid(action="/place-order" method="POST")
+      .card-custom
+        //- SECTION: SENDER
+        h4 #[i.fas.fa-user-tie] Thông tin người gửi
+        .sender-info-box
+          if user
+            .sender-info-line #[strong Họ tên:] #[span= user.name]
+            .sender-info-line #[strong SĐT:] #[span= user.phone]
+            .sender-info-line #[strong Địa chỉ:] #[span= user.address]
+            input(type="hidden" name="senderName" value=user.name)
+            input(type="hidden" name="senderPhone" value=user.phone)
+          else
+            p Vui lòng đăng nhập để đồng bộ thông tin tài khoản.
+
+        .form-group
+          label Lời chúc kèm theo
+          textarea.form-control(name="note" rows="3" placeholder="Viết lời chúc cá nhân của bạn tại đây...")
+
+        //- SECTION: RECIPIENT
+        h4(style="margin-top:40px;") #[i.fas.fa-gift] Thông tin người nhận
+        .form-group
+          label Họ tên người nhận
+          input.form-control(name="customerName" required placeholder="Họ và tên người nhận")
+        
+        div(style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;")
+          .form-group
+            label Số điện thoại
+            input.form-control(name="phone" type="tel" required placeholder="09xxxxxxxx")
+          .form-group
+            label Thời gian giao hàng
+            input.form-control(name="deliveryTime" placeholder="Ví dụ: Buổi chiều")
+
+        .form-group
+          label Địa chỉ giao hàng
+          input.form-control(name="address" required placeholder="Số nhà, Phường/Xã, Quận/Huyện...")
+
+        //- SECTION: PAYMENT
+        h4(style="margin-top:40px;") #[i.fas.fa-credit-card] Phương thức thanh toán
+        .payment-options
+          label.payment-item
+            input(type="radio" name="paymentMethod" value="COD" checked)
+            .payment-label
+              i.fas.fa-hand-holding-usd
+              div #[span Thanh toán khi nhận hàng (COD)]
+          label.payment-item
+            input(type="radio" name="paymentMethod" value="BANK")
+            .payment-label
+              i.fas.fa-qrcode
+              div #[span Chuyển khoản ngân hàng / VietQR]
+
+      //- SUMMARY SIDEBAR
+      .card-custom.order-summary(style="border: 1px solid #d4af37;")
+        h4 Tóm tắt đơn hàng
+        each item in cart
+          .item-line(style="display:flex; justify-content:space-between; margin-bottom:15px; font-size: 0.9rem;")
+            span #{item.name} (x#{item.qty})
+            span #{(item.price * item.qty).toLocaleString('vi-VN')} đ
+        
+        //- Logic Voucher hiển thị
+        if appliedVoucher
+          .item-line(style="display:flex; justify-content:space-between; margin-bottom:15px; font-size: 0.9rem; color: #064e3b; font-weight: 600;")
+            span Voucher: #{appliedVoucher.code}
+            span -#{appliedVoucher.discountAmount.toLocaleString('vi-VN')} đ
+        
+        .total-section(style="border-top: 1px solid #1a1a1a; padding-top: 15px;")
+          div(style="display:flex; justify-content:space-between; font-weight:700; font-size: 1.2rem;")
+            span Tổng cộng:
+            - const finalTotal = appliedVoucher ? (total - appliedVoucher.discountAmount) : total
+            span #{finalTotal.toLocaleString('vi-VN')} đ
+        
+        button.btn-submit(type="submit") Xác nhận đơn hàng
+        a(href="/cart" style="display:block; text-align:center; margin-top:20px; color:#888; font-size: 0.8rem; text-decoration:none;") ← Quay lại giỏ hàng

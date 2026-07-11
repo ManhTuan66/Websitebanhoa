@@ -1,0 +1,67 @@
+extends layout
+
+block content
+  style.
+    .btn-add:hover { background: #1a1a1a !important; color: #fff !important; }
+    .product-container { padding: 100px 8%; max-width: 1200px; margin: 0 auto; }
+    .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 100px; align-items: start; }
+    .img-wrapper { border: 1px solid #e0c9a6; padding: 20px; background: white; box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
+    .main-img { width: 100%; display: block; filter: contrast(1.02); }
+    /* Style cho nút back tinh tế */
+    .back-link { color: #ccc; text-decoration: none; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; transition: 0.3s; }
+    .back-link:hover { color: #1a1a1a; }
+
+  main.product-container
+    .product-grid
+      .img-wrapper
+        img.main-img(src=flower.image, alt=flower.name)
+      
+      .info-wrapper
+        div(style="border-bottom: 1px solid #e0c9a6; padding-bottom: 30px; margin-bottom: 30px;")
+          h1(style="font-family: 'Playfair Display', serif; font-size: 3.5rem; font-style: italic; color: #1a1a1a; margin-bottom: 10px; line-height: 1.1;")= flower.name
+          p(style="font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #d4af37;") #{flower.price.toLocaleString('vi-VN')} VNĐ
+        
+        div(style="margin-bottom: 40px;")
+          h4(style="font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; color: #aaa; margin-bottom: 15px;") Câu chuyện về loài hoa
+          p(style="font-family: 'Poppins', sans-serif; color: #555; line-height: 2; font-size: 0.95rem; font-weight: 300;") 
+            | #{flower.description || "Một lựa chọn tinh tế từ những đóa hoa tươi mới, được tuyển chọn để mang lại vẻ đẹp thanh tao và duyên dáng cho những khoảnh khắc đặc biệt của bạn."}
+        
+        .action-area
+          form(action="/cart/add", method="POST")
+            input(type="hidden", name="flowerId", value=flower._id)
+            button.btn-add(type="submit" style="background: transparent; border: 1px solid #1a1a1a; padding: 15px 40px; font-size: 0.8rem; letter-spacing: 3px; text-transform: uppercase; cursor: pointer; transition: 0.4s;") Thêm vào giỏ hàng
+          
+          //- Vị trí nút quay lại
+          div(style="margin-top: 40px;")
+            a.back-link(href="javascript:history.back()") ← Tiếp tục mua sắm
+          
+          p(style="margin-top: 20px; font-size: 0.75rem; color: #888; font-style: italic; border-top: 1px solid #eee; padding-top: 20px;") 
+            | <i class="fas fa-leaf" style="margin-right: 10px; color: #d4af37;"></i> Đảm bảo độ tươi mới từ 5-7 ngày.
+
+  script.
+    function addToCartAnimation(e) {
+      const btn = e.target;
+      const img = document.querySelector('.main-img');
+      const cartIcon = document.querySelector('.fa-shopping-basket');
+      
+      const clone = img.cloneNode(true);
+      clone.style.position = 'fixed';
+      clone.style.zIndex = '9999';
+      clone.style.width = '150px';
+      clone.style.borderRadius = '20px';
+      clone.style.top = img.getBoundingClientRect().top + 'px';
+      clone.style.left = img.getBoundingClientRect().left + 'px';
+      clone.style.transition = 'all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1)';
+      document.body.appendChild(clone);
+
+      setTimeout(function() {
+        clone.style.top = cartIcon.getBoundingClientRect().top + 'px';
+        clone.style.left = cartIcon.getBoundingClientRect().left + 'px';
+        clone.style.width = '20px';
+        clone.style.opacity = '0';
+      }, 50);
+
+      setTimeout(function() {
+        clone.remove();
+      }, 900);
+    }

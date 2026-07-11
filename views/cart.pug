@@ -1,0 +1,160 @@
+extends layout
+
+block content
+  style.
+    .cart-wrapper { max-width: 900px; margin: 60px auto; padding: 0 20px; }
+    .cart-header { text-align: center; margin-bottom: 40px; }
+    .cart-header h2 { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-style: italic; color: #1a1a1a; }
+    
+    .order-frame { border: 1px solid #e0c9a6; padding: 30px; background: #fff; }
+    .table-luxury { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .table-luxury th { border-bottom: 1px solid #d4af37; padding: 15px; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 2px; color: #888; text-align: center; }
+    .table-luxury td { padding: 20px 10px; border-bottom: 1px solid #f0f0f0; text-align: center; vertical-align: middle; }
+    .col-product { width: 40%; text-align: left !important; }
+    .col-price, .col-qty, .col-total, .col-remove { width: 15%; }
+    
+    .voucher-box { margin-top: 30px; padding: 20px; background: #fdfdfd; border: 1px dashed #d4af37; display: flex; gap: 10px; align-items: center; }
+    .voucher-input { flex: 1; padding: 10px; border: 1px solid #ddd; outline: none; font-size: 0.8rem; }
+    .voucher-btn { padding: 10px 20px; background: #064e3b; color: #fff; border: none; font-size: 0.7rem; text-transform: uppercase; cursor: pointer; transition: 0.3s; }
+    .voucher-btn:hover { background: #065f46; }
+    
+    .nav-bottom { text-align: center; margin-top: 50px; }
+    .back-btn-luxury { display: inline-block; padding: 12px 35px; border: 1px solid #d4af37; color: #d4af37; text-decoration: none; font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; transition: 0.3s; }
+    .back-btn-luxury:hover { background: #d4af37; color: white; }
+
+  .cart-wrapper
+    header.cart-header
+      h2 Giỏ hàng của bạn
+      div(style="width: 50px; height: 1px; background: #d4af37; margin: 10px auto;")
+
+    if cart && cart.length > 0
+      div(style="text-align: right; margin-bottom: 15px;")
+        a(href="/cart/clear" style="color: #c0392b; font-size: 0.8rem; text-decoration: none; border-bottom: 1px solid;") 
+          i.fas.fa-trash-alt(style="margin-right: 5px;")
+          | Xóa giỏ hàng
+
+      .order-frame
+        table.table-luxury
+          thead
+            tr
+              th.col-product Sản phẩm
+              th.col-price Đơn giá
+              th.col-qty Số lượng
+              th.col-total Thành tiền
+              th.col-remove
+          tbody
+            each item in cart
+              tr
+                td.col-product
+                  div(style="display:flex; align-items:center; gap:15px;")
+                    img(src=(item.image || '/default.jpg') style="width: 60px; height: 60px; object-fit: cover; border: 1px solid #eee;")
+                    span(style="font-family: 'Playfair Display'; font-weight: 700;")= item.name
+                td.col-price #{item.price.toLocaleString('vi-VN')} đ
+                td.col-qty
+                  .qty-control(style="display:flex; justify-content:center; gap:10px;")
+                    a.qty-minus(href="#" data-id=item.id style="color:#d4af37; text-decoration:none;") -
+                    span(id=`qty-${item.id}`)= item.qty
+                    a.qty-plus(href="#" data-id=item.id style="color:#d4af37; text-decoration:none;") +
+                td.col-total(id=`line-total-${item.id}` style="font-weight:700;")
+                  = (item.price * item.qty).toLocaleString('vi-VN') + ' đ'
+
+                input(type="hidden" id=`price-${item.id}` value=item.price)
+                td.col-remove
+                  a(href=`/cart/remove/${item.id}` style="color: #1a1a1a;") #[i.fas.fa-times]
+
+        .voucher-box
+          i.fas.fa-ticket-alt(style="color: #d4af37; font-size: 1.2rem;")
+          input#voucherInput(type="text" placeholder="Nhập mã ưu đãi" class="voucher-input")
+          button#applyBtn(type="button" onclick="applyVoucher()" class="voucher-btn") Áp dụng
+          button#removeVoucherBtn(type="button" onclick="removeVoucher()" style="display:none; background:#eee; color:#c0392b; border:none; padding:10px 15px; font-size: 0.7rem; text-transform: uppercase; cursor:pointer;") 
+            i.fas.fa-times
+            |  Gỡ bỏ
+        
+        #voucherMessage(style="margin-top: 10px; font-size: 0.85rem; font-weight: 600; text-align: center; display: none; padding: 10px; border-radius: 8px;")
+
+        div(style="margin-top: 30px; text-align: right; border-top: 2px solid #1a1a1a; padding-top: 20px;")
+          #discountRow(style="display: none; color: #064e3b; margin-bottom: 5px; font-weight: 600;")
+            | Giảm giá: -
+            span#discountValue 0
+            |  đ
+          p(style="font-family: 'Playfair Display'; font-size: 1.6rem; color: #1a1a1a; margin-bottom: 20px;") 
+            | Tổng cộng: 
+            span#totalValue #{total.toLocaleString('vi-VN')}
+            |  đ
+          div(style="display:flex; justify-content: flex-end; gap: 15px;")
+            a(href="/explore" style="display:inline-block; border: 1px solid #1a1a1a; color: #1a1a1a; padding:15px 30px; text-decoration:none; font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase;") Chọn thêm hoa
+            a(href="/checkout" style="display:inline-block; background:#1a1a1a; color:white; padding:15px 40px; text-decoration:none; font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase;") Tiến hành thanh toán
+
+    else
+      div(style="text-align:center; padding: 60px 0; border: 1px dashed #e0c9a6;")
+        p(style="font-family: 'Playfair Display'; font-style: italic; color: #888;") Giỏ hàng của bạn đang trống.
+
+    .nav-bottom
+      a.back-btn-luxury(href="/explore") ← Tiếp tục mua sắm
+
+  script.
+    async function applyVoucher() {
+      const input = document.getElementById('voucherInput');
+      const applyBtn = document.getElementById('applyBtn');
+      const removeBtn = document.getElementById('removeVoucherBtn');
+      const msgDiv = document.getElementById('voucherMessage');
+      
+      if (!input.value) return;
+
+      try {
+        const response = await fetch('/cart/apply-voucher', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ voucherCode: input.value })
+        });
+        const result = await response.json();
+
+        msgDiv.style.display = 'block';
+        msgDiv.innerText = result.msg;
+        msgDiv.style.backgroundColor = result.success ? '#ecfdf5' : '#fff1f2';
+        msgDiv.style.color = result.success ? '#065f46' : '#9f1239';
+
+        if(result.success) {
+          input.disabled = true;
+          applyBtn.style.display = 'none';
+          removeBtn.style.display = 'inline-block';
+          
+          document.getElementById('discountRow').style.display = 'block';
+          document.getElementById('discountValue').innerText = result.discountAmount.toLocaleString('vi-VN');
+          document.getElementById('totalValue').innerText = result.finalTotal.toLocaleString('vi-VN');
+        }
+      } catch (err) { console.error(err); }
+    }
+
+    async function removeVoucher() {
+      await fetch('/cart/remove-voucher', { method: 'POST' });
+      location.reload(); 
+    }
+
+    // Tăng/Giảm số lượng
+    document.querySelectorAll('.qty-plus, .qty-minus').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const id = btn.dataset.id;
+        const action = btn.classList.contains('qty-plus') ? 'increase' : 'decrease';
+
+        try {
+          const response = await fetch(`/cart/${action}/${id}`, { method: 'POST' });
+          const result = await response.json();
+
+          if (!result.success) {
+            if(result.message) alert(result.message);
+            return;
+          }
+
+          if (result.qty <= 0) {
+            location.reload();
+            return;
+          }
+
+          document.getElementById(`qty-${id}`).innerText = result.qty;
+          const price = Number(document.getElementById(`price-${id}`).value);
+          document.getElementById(`line-total-${id}`).innerText = (price * result.qty).toLocaleString('vi-VN') + ' đ';
+        } catch (err) { console.error(err); }
+      });
+    });

@@ -1,0 +1,71 @@
+extends layout
+include mixins
+
+block content
+  //- 1. HERO SECTION
+  section(style="padding: 60px 8%; text-align: center; background: #fffcf5; border-bottom: 1px solid #d4af37;")
+    h1(style="font-family: 'Playfair Display', serif; font-size: 2.5rem; color: #1a1a1a; font-style: italic;") Ưu đãi độc quyền
+    p(style="font-family: 'Poppins', sans-serif; letter-spacing: 2px; color: #888; text-transform: uppercase; font-size: 0.7rem; margin-top: 10px;") Phần thưởng đặc biệt dành cho các khách hàng thân thiết của PNShop
+
+  //- 2. VOUCHER GRID (Dạng ngang như bức thư)
+  main(style="padding: 60px 8%; max-width: 1000px; margin: 0 auto;")
+    .grid-container(style="display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 20px;")
+      if vouchers && vouchers.length > 0
+        each v in vouchers
+          article(style="background: white; border: 1px solid #e0c9a6; padding: 25px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 5px 15px rgba(0,0,0,0.03); position: relative;")
+            //- Phần thông tin giảm giá
+            div(style="flex: 1; text-align: left; padding-right: 20px;")
+              h3(style="font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #1a1a1a; margin-bottom: 5px;")= v.discountType === 'percent' ? v.discountValue + '%' : (v.discountValue/1000) + 'K'
+              p(style="font-size: 0.75rem; color: #888; margin-bottom: 5px;") Đơn tối thiểu: #{v.minOrderValue.toLocaleString('vi-VN')}đ
+              p(style="font-size: 0.7rem; color: #aaa; font-style: italic;") HSD: #{new Date(v.expiryDate).toLocaleDateString('vi-VN')}
+            
+            //- Phần mã code và nút
+            div(style="text-align: center; border-left: 1px dashed #e0c9a6; padding-left: 20px;")
+              div(style="font-family: 'Courier New', monospace; font-size: 1.1rem; font-weight: bold; color: #d4af37; margin-bottom: 10px;")= v.code
+              button(onclick=`copyVoucher('${v.code}')` style="background: #1a1a1a; color: white; border: none; padding: 8px 15px; cursor: pointer; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px;") SAO CHÉP
+      else
+        div(style="text-align: center; grid-column: 1/-1; padding: 50px 0; color: #888; font-style: italic;")
+          p Hiện tại chưa có ưu đãi mới nào.
+
+  //- 3. CLOSING SECTION (Lời chào tạm biệt)
+  section(style="padding: 80px 8%; text-align: center; background: #fffcf5; border-top: 1px solid #e0c9a6;")
+    div(style="max-width: 600px; margin: 0 auto;")
+      div(style="font-size: 2rem; color: #d4af37; margin-bottom: 20px;")
+        i.fas.fa-leaf
+      
+      h3(style="font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #1a1a1a; margin-bottom: 20px; font-style: italic;") Cảm ơn bạn vì sự tin tưởng
+      
+      p(style="font-family: 'Poppins', sans-serif; font-size: 0.95rem; color: #777; line-height: 1.8; letter-spacing: 0.5px;") 
+        | Thật là một vinh dự khi được phục vụ bạn. Cảm ơn bạn đã để PNShop trở thành một phần trong những khoảnh khắc đặc biệt của bạn. 
+        | Chúng tôi thực sự trân trọng sự ủng hộ của bạn và rất mong được chào đón bạn quay lại sớm.
+      div(style="margin-top: 30px; font-family: 'Playfair Display', serif; font-size: 1.1rem; color: #1a1a1a; font-style: italic;")
+        | Trân trọng, 
+        br
+        | Đội ngũ PNShop
+
+  block scripts
+  script.
+    function copyVoucher(code) {
+      navigator.clipboard.writeText(code).then(() => {
+        const toast = document.createElement('div');
+        toast.textContent = 'Đã sao chép: ' + code;
+        toast.style.position = 'fixed';
+        toast.style.bottom = '30px';
+        toast.style.left = '50%';
+        toast.style.transform = 'translateX(-50%)';
+        toast.style.background = '#1a1a1a';
+        toast.style.color = '#fff';
+        toast.style.padding = '10px 20px';
+        toast.style.borderRadius = '5px';
+        toast.style.fontFamily = 'Poppins, sans-serif';
+        toast.style.fontSize = '0.8rem';
+        toast.style.zIndex = '9999';
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+          toast.remove();
+        }, 2000);
+      }).catch(err => {
+        console.error('Không thể sao chép: ', err);
+      });
+    }

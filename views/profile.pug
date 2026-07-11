@@ -1,0 +1,125 @@
+doctype html
+html(lang="vi")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title Hồ sơ - PNShop
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css")
+    link(href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;600&display=swap", rel="stylesheet")
+    style.
+      :root {
+        --gold: #d4af37;
+        --dark: #1a1a1a;
+        --cream: #fffcf5;
+      }
+      body { font-family: 'Poppins', sans-serif; background: var(--cream); margin: 0; padding: 40px 5%; color: var(--dark); }
+      .profile-container { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 350px 1fr; gap: 40px; }
+      
+      .profile-card { background: white; padding: 40px; border: 1px solid var(--gold); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+      .avatar { width: 120px; height: 120px; border: 2px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin: 0 auto 20px; font-family: 'Playfair Display'; color: var(--gold); background: #fdfdfd; }
+      
+      .info-item { margin-bottom: 25px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+      .info-label { font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 2px; display: block; }
+      .info-value { font-weight: 600; font-size: 0.95rem; }
+
+      .loyalty-banner { padding: 30px; color: white; background: var(--dark); border-bottom: 5px solid var(--gold); margin-bottom: 40px; text-align: center; }
+      .rank-title { font-family: 'Playfair Display', serif; font-style: italic; font-size: 2rem; margin-bottom: 5px; color: var(--gold); }
+
+      .orders-section { background: white; padding: 40px; border: 1px solid var(--gold); }
+      .order-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+      .order-table th { text-align: left; padding: 15px; border-bottom: 1px solid var(--gold); font-family: 'Playfair Display'; }
+      .order-table td { padding: 15px; border-bottom: 1px solid #f2f2f2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      
+      .order-table th:nth-child(1), .order-table td:nth-child(1) { width: 20%; }
+      .order-table th:nth-child(2), .order-table td:nth-child(2) { width: 20%; }
+      .order-table th:nth-child(3), .order-table td:nth-child(3) { width: 30%; }
+      .order-table th:nth-child(4), .order-table td:nth-child(4) { width: 30%; text-align: center; }
+
+      .status-badge { 
+        padding: 6px 12px; 
+        font-size: 0.7rem; 
+        text-transform: uppercase; 
+        border: 1px solid; 
+        font-weight: 700; 
+        display: inline-block;
+        min-width: 90px; /* Độ rộng cố định tối thiểu để các badge đều nhau */
+        text-align: center;
+        border-radius: 4px;
+      }
+      @media (max-width: 900px) { .profile-container { grid-template-columns: 1fr; } }
+
+  body
+    //- Cấu hình trạng thái đơn hàng
+    - 
+      var statusConfig = {
+        'pending': { label: 'Chờ duyệt', color: '#f39c12' },
+        'shipping': { label: 'Đang giao', color: '#3498db' },
+        'completed': { label: 'Hoàn thành', color: '#27ae60' },
+        'cancelled': { label: 'Đã bị hủy', color: '#c0392b' }
+      };
+
+    .profile-container
+      aside.profile-card
+        .avatar= (user.fullName || 'U').charAt(0).toUpperCase()
+        h2(style="font-family: 'Playfair Display'; font-style: italic; text-align: center;")= user.fullName
+        p(style="text-align: center; color: var(--gold); letter-spacing: 2px; font-size: 0.8rem; text-transform: uppercase;") @#{user.username}
+        
+        .info-list
+          .info-item
+            span.info-label Vai trò
+            span.info-value= user.role === 'admin' ? 'Quản trị viên' : 'Khách hàng thân thiết'
+          .info-item
+            span.info-label Số điện thoại
+            div(style="display:flex; justify-content:space-between;")
+              span.info-value= user.phone || 'Chưa cập nhật'
+              i.fas.fa-edit(style="cursor:pointer; color:var(--gold);" onclick="openEditModal()")
+          .info-item
+            span.info-label Địa chỉ
+            div(style="display:flex; justify-content:space-between;")
+              span.info-value= user.address || 'Chưa cập nhật'
+              i.fas.fa-edit(style="cursor:pointer; color:var(--gold);" onclick="openEditModal()")
+
+        a(href="/" style="display:block; text-align:center; margin-top:30px; text-decoration:none; color: var(--dark); font-weight: 700; border: 1px solid var(--dark); padding: 10px;") VỀ TRANG CHỦ
+
+      main
+        .loyalty-banner
+          .rank-title= user.rank || 'Thành viên Classic'
+          div(style="font-size: 3rem; font-weight: 700;")= user.points || 0
+          div(style="letter-spacing: 3px; font-size: 0.8rem;") ĐIỂM TÍCH LŨY FLORA
+
+        .orders-section
+          h3(style="font-family: 'Playfair Display'; font-style: italic; margin-top:0; border-bottom: 1px solid var(--gold); padding-bottom: 10px;") Lịch sử đơn hàng
+          if orders && orders.length > 0
+            table.order-table
+              thead
+                tr
+                  th MÃ ĐƠN
+                  th NGÀY ĐẶT
+                  th TỔNG TIỀN
+                  th(style="text-align: center;") TRẠNG THÁI
+              tbody
+                each order in orders
+                  tr
+                    td: b= '#' + order._id.toString().slice(-8).toUpperCase()
+                    td= new Date(order.createdAt).toLocaleDateString('vi-VN')
+                    td(style="color: var(--gold); font-weight: 700;")= order.totalAmount.toLocaleString('vi-VN') + ' VNĐ'
+                    td(style="text-align: center;") 
+                      - var cfg = statusConfig[order.status] || { label: order.status, color: 'var(--gold)' }
+                      span.status-badge(style=`color: ${cfg.color}; border-color: ${cfg.color};`)
+                        = cfg.label
+          else
+            p(style="text-align:center; color:#888; padding: 20px;") Chưa có đơn hàng nào.
+
+    //- Modal
+    #editModal(style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:999; align-items:center; justify-content:center;")
+      .profile-card(style="width:400px;")
+        h3(style="font-family: 'Playfair Display';") Cập nhật thông tin
+        form(action="/profile/update" method="POST")
+          input(type="text" name="phone" value=user.phone placeholder="Số điện thoại" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid var(--gold);")
+          textarea(name="address" rows="3" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid var(--gold);")= user.address
+          button(type="submit" style="width:100%; padding:10px; background:var(--dark); color:white; border:none; cursor:pointer;") LƯU THAY ĐỔI
+        button(onclick="closeEditModal()" style="width:100%; padding:10px; background:transparent; border:1px solid #ccc; margin-top:10px; cursor:pointer;") HỦY
+    
+    script.
+      function openEditModal() { document.getElementById('editModal').style.display = 'flex'; }
+      function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }

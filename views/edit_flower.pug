@@ -1,0 +1,75 @@
+extends layout_admin
+
+block content
+  style.
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap');
+
+    :root { --gold: #d4af37; --gold-dark: #b8962d; --dark: #1a1a1a; --bg: #fcfcfc; }
+
+    .admin-main { padding: 40px; background: var(--bg); min-height: 100vh; font-family: 'Montserrat', sans-serif; }
+    
+    .edit-container { max-width: 900px; margin: 0 auto; background: white; padding: 50px; border-radius: 20px; border: 1px solid #e8e8e8; box-shadow: 0 10px 30px rgba(0,0,0,0.06); }
+    
+    .edit-header { display: flex; align-items: center; gap: 20px; margin-bottom: 50px; border-bottom: 3px solid var(--gold); padding-bottom: 25px; }
+    .edit-header h2 { font-family: 'Playfair Display', serif; font-style: italic; color: var(--dark); font-size: 2.2rem; margin: 0; font-weight: 800; }
+    
+    .current-img-preview { display: flex; align-items: center; gap: 30px; background: #fafafa; padding: 30px; border-radius: 15px; margin-bottom: 40px; border: 1px solid #eee; }
+    .current-img-preview img { width: 140px; height: 140px; object-fit: cover; border-radius: 12px; border: 3px solid var(--gold); }
+
+    /* Font và Input đậm, rõ nét hơn */
+    .form-group label { font-weight: 800; color: #333; font-size: 0.85rem; text-transform: uppercase; margin-bottom: 12px; display: block; letter-spacing: 0.5px; }
+    .form-group input, .form-group textarea, .form-group select { 
+        width: 100%; padding: 16px; border: 2px solid #e0e0e0; border-radius: 10px; 
+        font-family: 'Montserrat', sans-serif; font-size: 1rem; font-weight: 600; color: #222; 
+    }
+    .form-group input:focus { border-color: var(--gold); outline: none; }
+    
+    .triple-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-bottom: 25px; }
+    
+    .btn-group { margin-top: 40px; display: flex; gap: 20px; }
+    .btn-save { background: var(--dark); color: white; border: none; padding: 18px 40px; border-radius: 10px; font-weight: 800; font-size: 1rem; cursor: pointer; transition: 0.3s; flex: 2; text-transform: uppercase; letter-spacing: 1px; }
+    .btn-save:hover { background: var(--gold); }
+    .btn-cancel { flex: 1; text-align: center; padding: 18px; color: #666; text-decoration: none; font-weight: 800; border: 2px solid #eee; border-radius: 10px; text-transform: uppercase; letter-spacing: 1px; }
+
+  main.admin-main
+    .edit-container
+      header.edit-header
+        a(href="/admin" style="color: var(--dark); font-size: 1.5rem;") <i class="fas fa-chevron-left"></i>
+        h2 Chỉnh sửa sản phẩm: #{flower.name}
+
+      form(action=`/admin/edit/${flower._id}`, method="POST", enctype="multipart/form-data")
+        .current-img-preview
+          img(src=flower.image, alt=flower.name)
+          div
+            label Hình ảnh hiện tại
+            p(style="font-size: 0.9rem; color: #666; margin-bottom: 15px;") Chọn tệp mới để thay thế hình ảnh sản phẩm hiện có.
+            input(type="file", name="image", accept="image/*")
+
+        .form-row(style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px;")
+          .form-group
+            label Tên sản phẩm
+            input(type="text", name="name", value=flower.name, required)
+          .form-group
+            label Danh mục
+            select(name="category", required)
+              each cat in ["Hoa cảnh", "Hoa đám cưới", "Hoa sinh nhật", "Hoa sự kiện", "Hoa khai trương", "Hoa chủ đề", "Hoa theo mùa", "Bonsai", "Cây cảnh trang trí"]
+                option(value=cat, selected=flower.category === cat)= cat
+
+        .triple-grid
+          .form-group
+            label Giá vốn
+            input(type="number", name="cost_price", value=flower.cost_price, required)
+          .form-group
+            label Giá bán
+            input(type="number", name="price", value=flower.price, required)
+          .form-group
+            label Số lượng tồn kho
+            input(type="number", name="stock", value=flower.stock, required)
+
+        .form-group(style="margin-bottom: 25px;")
+          label Mô tả chi tiết
+          textarea(name="description", rows="6")= flower.description
+
+        .btn-group
+          button.btn-save(type="submit") LƯU THAY ĐỔI
+          a.btn-cancel(href="/admin") HỦY BỎ

@@ -1,0 +1,70 @@
+extends layout
+
+block content
+  //- Sử dụng style CSS đồng bộ với trang Home (Luxury Boutique)
+  style.
+    .track-section { padding: 60px 8%; background: #fffcf5; }
+    .luxury-card { 
+      background: #fffcf5; 
+      border: 1px solid #d4af37; 
+      padding: 40px; 
+      max-width: 800px; 
+      margin: 0 auto;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+    .input-wrapper { 
+      display: flex; 
+      border: 2px solid #1a1a1a; 
+      background: white; 
+      max-width: 500px; 
+      margin: 20px auto; 
+    }
+    .btn-luxury {
+      padding: 12px 30px; 
+      background: #1a1a1a; 
+      color: white; 
+      border: none; 
+      cursor: pointer; 
+      font-family: 'Poppins', sans-serif;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+    }
+
+  section.track-section
+    div.luxury-card
+      //- Tiêu đề sang trọng
+      div(style="text-align: center; margin-bottom: 40px;")
+        div(style="color: #d4af37; font-size: 1.5rem;") ❦
+        h1(style="font-family: 'Playfair Display', serif; font-size: 2.5rem; color: #1a1a1a; font-style: italic;") Tra cứu đơn hàng
+        p(style="font-family: 'Poppins', sans-serif; color: #888; font-size: 0.9rem; letter-spacing: 2px;") THEO DÕI HÀNH TRÌNH NHỮNG ĐÓA HOA CỦA BẠN.
+
+      //- Thanh tìm kiếm đồng bộ
+      form(action="/track-order" method="GET")
+        .input-wrapper
+          input(type="text" name="phone" value=searchedPhone placeholder="Nhập số điện thoại của bạn..." required style="flex: 1; padding: 12px 20px; border: none; outline: none; font-family: 'Poppins';")
+          button.btn-luxury(type="submit") Tra cứu
+
+      //- Danh sách đơn hàng
+      if orders && orders.length > 0
+        div(style="margin-top: 40px;")
+          each order in orders
+            div(style="border-bottom: 1px solid #d4af37; padding: 20px 0;")
+              div(style="display: flex; justify-content: space-between; align-items: center;")
+                div
+                  span(style="font-family: 'Playfair Display'; font-weight: 700;") ##{order._id.toString().slice(-8).toUpperCase()}
+                  p(style="font-size: 0.8rem; color: #666;")= new Date(order.createdAt).toLocaleString('vi-VN')
+                
+                //- Status Badge phong cách cổ điển
+                span(style="font-family: 'Poppins'; font-size: 0.7rem; letter-spacing: 1px; padding: 5px 15px; border: 1px solid #d4af37;")= order.status.toUpperCase()
+
+              //- Chi tiết đơn (Compact)
+              div(style="margin-top: 15px; font-family: 'Poppins'; font-size: 0.9rem;")
+                each item in order.items
+                  div(style="display: flex; justify-content: space-between; color: #555;")
+                    span= item.name + " (x" + item.qty + ")"
+                    span= (item.price * item.qty).toLocaleString('vi-VN') + " VNĐ"
+      
+      else if searchedPhone
+        div(style="text-align: center; padding: 40px; color: #888; font-family: 'Poppins';")
+          i.fas.fa-leaf(style="margin-bottom: 10px;")
+          p Không tìm thấy đơn hàng với số điện thoại này.

@@ -1,0 +1,120 @@
+doctype html
+html(lang="vi")
+  head
+    meta(charset="UTF-8")
+    title Hóa đơn ##{order._id.toString().slice(-6).toUpperCase()} - FloraHub
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css")
+    link(href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@400;600;700&display=swap", rel="stylesheet")
+    style.
+      :root {
+        --pink-main: #FF85A1;
+        --pink-dark: #E91E63;
+        --text-dark: #2d3436;
+        --gray-light: #f9f9f9;
+        --pink-bg: #fff0f3;
+      }
+      body { font-family: 'Quicksand', sans-serif; background: #f4f7f6; color: var(--text-dark); margin: 0; padding: 20px; }
+      .invoice-container { 
+        max-width: 1000px; margin: auto; background: white; padding: 50px; 
+        border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border-top: 8px solid var(--pink-main);
+      }
+      .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 2px solid var(--gray-light); }
+      .logo-area h1 { font-family: 'Dancing Script', cursive; color: var(--pink-main); margin: 0; font-size: 32px; }
+      .order-meta { text-align: right; }
+      .order-id { color: var(--pink-main); font-weight: 700; margin-top: 5px; }
+      /* Cấu trúc 4 cột để hiển thị đầy đủ thông tin */
+      .info-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
+      .section-title { font-weight: 800; text-transform: uppercase; color: #b2bec3; font-size: 11px; border-bottom: 1px solid var(--gray-light); margin-bottom: 12px; padding-bottom: 5px; }
+      .info-block strong { display: block; margin-bottom: 5px; color: var(--text-dark); font-size: 0.95rem; }
+      .info-block p { margin: 5px 0; font-size: 0.85rem; color: #636e72; }
+      .user-tag { display: inline-block; padding: 2px 8px; background: var(--pink-bg); color: var(--pink-main); border-radius: 4px; font-size: 0.7rem; font-weight: 700; }
+      table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+      th { background: var(--gray-light); text-align: left; padding: 15px; font-size: 0.85rem; text-transform: uppercase; color: #636e72; }
+      td { padding: 15px; border-bottom: 1px solid var(--gray-light); }
+      .total-box { margin-top: 30px; padding: 20px; background: var(--gray-light); border-radius: 15px; text-align: right; }
+      .total-amount { font-size: 28px; color: var(--pink-dark); font-weight: 800; }
+      .badge { padding: 4px 10px; border-radius: 50px; font-size: 10px; font-weight: 700; }
+      .status-pending { background: #ffeaa7; color: #d63031; }
+      .status-completed { background: #55efc4; color: #00b894; }
+      .btn-group { margin-top: 30px; display: flex; gap: 15px; justify-content: center; }
+      .btn { padding: 10px 20px; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 13px; transition: 0.3s; border: none; cursor: pointer; }
+      .btn-print { background: var(--text-dark); color: white; }
+      .btn-back { background: #dfe6e9; color: #636e72; }
+
+  body
+    .invoice-container
+      .header
+        .logo-area
+          h1 FloraHub Admin
+          p Đơn vị cung cấp hoa nghệ thuật - VNUA
+        .order-meta
+          h2 HÓA ĐƠN CHI TIẾT
+          p.order-id ID: ##{order._id.toString().toUpperCase()}
+          p Ngày xuất: #{new Date().toLocaleString('vi-VN')}
+
+      //- Grid 4 cột hiển thị chi tiết
+      .info-grid
+        //- 1. Tài khoản đặt hàng
+        .info-block
+          .section-title Tài khoản đặt
+          strong= (order.orderedBy ? order.orderedBy.username : 'Vãng lai')
+          p: span.user-tag Khách hàng hệ thống
+        
+        //- 2. Thông tin NGƯỜI GỬI (Đã thêm vào đây)
+        .info-block
+          .section-title Người gửi (Sender)
+          strong= order.senderName || 'N/A'
+          p 
+            i.fas.fa-phone(style="margin-right: 5px;")
+            | #{order.senderPhone || 'N/A'}
+            
+        //- 3. Thông tin NGƯỜI NHẬN (Receiver)
+        .info-block
+          .section-title Người nhận (Receiver)
+          strong= order.customer.name
+          p 
+            i.fas.fa-phone(style="margin-right: 5px;")
+            | #{order.customer.phone}
+          p 
+            i.fas.fa-map-marker-alt(style="margin-right: 5px;")
+            | #{order.customer.address}
+            
+        //- 4. Trạng thái đơn hàng
+        .info-block
+          .section-title Trạng thái
+          div
+            if order.status === 'pending'
+              span.badge.status-pending Đang chờ xử lý
+            else if order.status === 'completed'
+              span.badge.status-completed Đã hoàn thành
+            else
+              span.badge(style="background: #fab1a0; color: #d63031;") Đã hủy
+          if order.customer.note
+            p(style="margin-top: 8px; font-style: italic; color: #e67e22;") Note: #{order.customer.note}
+      table
+        thead
+          tr
+            th Sản phẩm
+            th(style="text-align: center;") Số lượng
+            th(style="text-align: right;") Đơn giá
+            th(style="text-align: right;") Thành tiền
+        tbody
+          each item in order.items
+            tr
+              td(style="font-weight: 600;")= item.name
+              td(style="text-align: center;") x#{item.qty}
+              td(style="text-align: right;")= item.price.toLocaleString('vi-VN') + ' đ'
+              td(style="text-align: right; font-weight: 700;")= (item.price * item.qty).toLocaleString('vi-VN') + ' đ'
+      
+      .total-box
+        span(style="color: #636e72;") Tổng thanh toán: 
+        span.total-amount= order.totalAmount.toLocaleString('vi-VN') + ' đ'
+
+      .btn-group
+        button.btn.btn-print(onclick="window.print()") 
+          i.fas.fa-print(style="margin-right: 5px;")
+          | In hóa đơn
+        a.btn.btn-back(href="/admin/orders") 
+          i.fas.fa-arrow-left(style="margin-right: 5px;")
+          | Quay lại danh sách

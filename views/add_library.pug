@@ -1,0 +1,81 @@
+extends layout_admin
+
+block content
+  style.
+    .text-gold { color: #d4af37 !important; }
+    .form-card { background: white; padding: 40px; border-radius: 20px; border: 1px solid #eee; box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
+    .section-divider { border-bottom: 1px solid #eee; margin: 30px 0 20px; padding-bottom: 10px; color: #1a1a1a; font-weight: 700; font-size: 1rem; display: flex; align-items: center; gap: 10px; }
+    .form-label { font-weight: 600; color: #555; margin-bottom: 8px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; display: block; }
+    .form-control { border: 1px solid #ddd; border-radius: 8px; padding: 12px 15px; width: 100%; transition: 0.3s; }
+    .form-control:focus { border-color: #d4af37; outline: none; }
+    .btn-save { background: #d4af37; color: black; padding: 12px 30px; border-radius: 8px; font-weight: 800; border: none; cursor: pointer; transition: 0.3s; }
+    .btn-save:hover { background: #b8962f; }
+    .btn-cancel { color: #888; font-weight: 600; margin-right: 20px; text-decoration: none; }
+    .btn-cancel:hover { color: #000; }
+
+  .form-card
+    h2(class="text-2xl font-bold pn-font italic text-[#1a1a1a] mb-2") 🌿 Thêm loài thực vật mới
+    p.text-gray-400.mb-8 Cập nhật thông tin khoa học cho thư viện PNShop
+
+    form(action="/admin/library/add", method="POST", enctype="multipart/form-data")
+      
+      .section-divider 
+        i.fas.fa-fingerprint.text-gold
+        | I. Phân loại học
+      .grid.grid-cols-2.gap-6.mb-4
+        .form-group
+          label.form-label Tên thường gọi
+          input.form-control(name="common_name", placeholder="VD: Lan Hồ Điệp", required)
+        .form-group
+          label.form-label Tên khoa học
+          input.form-control(name="scientific_name", placeholder="VD: Phalaenopsis amabilis", required)
+      .grid.grid-cols-3.gap-6.mb-4
+        .form-group
+          label.form-label Họ
+          input.form-control(name="family", placeholder="Orchidaceae")
+        .form-group
+          label.form-label Chi
+          input.form-control(name="genus", placeholder="Phalaenopsis")
+        .form-group
+          label.form-label Bộ
+          input.form-control(name="order", placeholder="Asparagales")
+
+      .section-divider 
+        i.fas.fa-microscope.text-gold
+        | II. Đặc điểm & Sinh thái
+      .grid.grid-cols-2.gap-6.mb-4
+        .form-group
+          label.form-label Mô tả hoa
+          textarea.form-control(name="flower_desc", rows="3", placeholder="Mô tả màu sắc, hình dáng...")
+        .form-group
+          label.form-label Đặc điểm lá & thân
+          textarea.form-control(name="leaf_desc", rows="3", placeholder="Mô tả lá, rễ, thân...")
+      .grid.grid-cols-3.gap-6.mb-4
+        .form-group
+          label.form-label Độ pH đất
+          input.form-control(name="ph", placeholder="VD: 5.5 - 6.5")
+        .form-group
+          label.form-label Nhiệt độ lý tưởng
+          input.form-control(name="temp", placeholder="VD: 18°C - 28°C")
+        .form-group
+          label.form-label Nguồn gốc địa lý
+          input.form-control(name="origin", placeholder="VD: Đông Nam Á")
+
+      .section-divider 
+        i.fas.fa-image.text-gold
+        | III. Ý nghĩa & Truyền thông
+      .mb-4
+        label.form-label Ý nghĩa tượng trưng
+        textarea.form-control(name="symbolism", rows="2", placeholder="Ý nghĩa, giá trị văn hóa...")
+      .mb-4
+        label.form-label Công dụng / Ứng dụng
+        textarea.form-control(name="medicinal", rows="2", placeholder="Công dụng, khả năng lọc không khí...")
+      .mb-6
+        label.form-label Tải ảnh lên
+        input.form-control(type="file", name="image", required)
+
+      .flex.justify-end.items-center.mt-8.pt-6.border-t
+        a.btn-cancel(href="/admin/library") Hủy
+        button.btn-save(type="submit") 
+          i.fas.fa-cloud-upload-alt.mr-2
+          | LƯU DỮ LIỆU

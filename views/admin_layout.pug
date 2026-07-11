@@ -1,0 +1,17 @@
+doctype html
+html(lang="vi")
+  head
+    title PNShop Admin
+    script(src="https://cdn.tailwindcss.com")
+  body(class="bg-gray-100 flex min-h-screen")
+    // Sidebar
+    aside(class="w-64 bg-slate-900 text-white p-6")
+      h1(class="text-2xl font-bold mb-10 text-rose-400") PNShop Admin
+      nav(class="space-y-4")
+        a(href="/admin" class="block py-2 px-4 hover:bg-slate-800 rounded") 🌸 Quản lý hoa
+        a(href="/admin/users" class="block py-2 px-4 hover:bg-slate-800 rounded") 👥 Quản lý người dùng
+        a(href="/logout" class="block py-2 px-4 text-red-400 hover:bg-slate-800 rounded mt-10") 🚪 Đăng xuất
+
+    // Main Content
+    main(class="flex-1 p-8")
+      block content

@@ -1,0 +1,72 @@
+extends layout
+include mixins
+
+block content
+  //- 1. HERO SECTION
+  section(style="padding: 60px 8%; text-align: center; background: #fffcf5; border-bottom: 1px solid #e0c9a6;")
+    h1(style="font-family: 'Playfair Display', serif; font-size: 3rem; color: #1a1a1a; font-style: italic;") Thư viện thực vật
+    p(style="font-family: 'Poppins', sans-serif; letter-spacing: 2px; color: #888; text-transform: uppercase; font-size: 0.8rem; margin-top: 10px;") Khám phá bản chất của thiên nhiên
+    
+    form(style="max-width: 500px; margin: 40px auto 0 auto; display: flex; border: 1px solid #1a1a1a; background: white;")
+      input#searchInput(type="text" placeholder="Tìm kiếm loài hoa..." style="flex: 1; padding: 12px 20px; border: none; outline: none; font-family: 'Poppins';")
+      button(type="button" style="padding: 12px 25px; background: #1a1a1a; border: none; color: white; cursor: pointer;") 
+        i.fas.fa-search
+
+  //- 2. WIKI GRID (Cấu trúc 3 cột cố định)
+  main(style="padding: 60px 8% 100px 8%; min-height: 50vh;")
+    #floraGrid(style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px;")
+      if flora && flora.length > 0
+        each item in flora
+          .flower-item(data-name=item.common_name.toLowerCase())
+            article(style="background: white; border: 1px solid #f0f0f0; padding: 25px; display: flex; flex-direction: column; height: 100%; box-shadow: 0 5px 15px rgba(0,0,0,0.02); transition: 0.3s;")
+              .wiki-img-wrapper(style="height: 200px; overflow: hidden; margin-bottom: 20px;")
+                img(src=item.image || 'https://via.placeholder.com/400x300' style="width: 100%; height: 100%; object-fit: cover;")
+              h3(style="font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #1a1a1a; font-style: italic; margin-bottom: 5px;")= item.common_name
+              span(style="display: block; font-size: 0.75rem; color: #d4af37; font-style: italic; margin-bottom: 20px;")= item.scientific_name
+              
+              div(style="flex-grow: 1; margin-bottom: 25px; font-size: 0.8rem; color: #666;")
+                span #[i.fas.fa-tint(style="margin-right: 5px;")] #{item.ecology ? item.ecology.soil_ph : 'N/A'}
+                span(style="margin-left: 15px;") #[i.fas.fa-sun(style="margin-right: 5px;")] #{item.ecology ? item.ecology.light : 'N/A'}
+
+              a(href=`/wiki/${item._id}` style="padding: 10px 0; border: 1px solid #1a1a1a; color: #1a1a1a; text-decoration: none; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; text-align: center;") Xem chi tiết
+      
+      //- Thông báo khi không tìm thấy
+      #noResults(style="display:none; grid-column: 1/-1; text-align:center; padding: 50px 0; font-family: 'Playfair Display'; font-style: italic; color: #888;")
+        p Không tìm thấy loài hoa nào phù hợp với từ khóa của bạn.
+
+  script.
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+      const term = e.target.value.toLowerCase();
+      const items = document.querySelectorAll('.flower-item');
+      const noResults = document.getElementById('noResults');
+      let found = 0;
+
+      items.forEach(item => {
+        const name = item.getAttribute('data-name');
+        if (name.includes(term)) {
+          item.style.display = 'block';
+          found++;
+        } else {
+          item.style.display = 'none';
+        }
+      });
+
+      noResults.style.display = found === 0 ? 'block' : 'none';
+    });
+
+  //- 3. CLOSING SECTION (Lời chào tạm biệt)
+  section(style="padding: 80px 8%; text-align: center; background: #fffcf5; border-top: 1px solid #e0c9a6;")
+    div(style="max-width: 600px; margin: 0 auto;")
+      div(style="font-size: 2rem; color: #d4af37; margin-bottom: 20px;")
+        i.fas.fa-leaf
+      
+      h3(style="font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #1a1a1a; margin-bottom: 20px; font-style: italic;") Cảm ơn bạn đã ghé thăm
+      
+      p(style="font-family: 'Poppins', sans-serif; font-size: 0.95rem; color: #777; line-height: 1.8; letter-spacing: 0.5px;") 
+        | Chúng tôi hy vọng bộ sưu tập này đã làm phong phú thêm kiến thức và giúp bạn đến gần hơn với thiên nhiên. 
+        | Chúc mỗi đóa hoa bạn khám phá tại đây đều khơi nguồn cảm hứng cho khu vườn xinh đẹp của riêng bạn.
+      
+      div(style="margin-top: 30px; font-family: 'Playfair Display', serif; font-size: 1.1rem; color: #1a1a1a; font-style: italic;")
+        | Trân trọng, 
+        br
+        | Đội ngũ PNShop

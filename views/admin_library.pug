@@ -1,0 +1,64 @@
+extends layout_admin
+
+block content
+  style.
+    .text-gold { color: #d4af37 !important; }
+    .admin-table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
+    .admin-table th { color: #888; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1.5px; padding: 15px; }
+    .admin-table td { background: white; padding: 15px; border-top: 1px solid #eee; border-bottom: 1px solid #eee; }
+    .admin-table td:first-child { border-left: 1px solid #eee; border-radius: 10px 0 0 10px; }
+    .admin-table td:last-child { border-right: 1px solid #eee; border-radius: 0 10px 10px 0; }
+    
+    .family-badge { background: #fffcf5; color: #d4af37; padding: 4px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 700; border: 1px solid #d4af37; }
+    .eco-tag { display: inline-flex; align-items: center; gap: 8px; font-size: 0.75rem; color: #666; font-weight: 600; background: #f9f9f9; padding: 4px 10px; border-radius: 8px; margin-bottom: 4px; }
+    .action-btn { transition: 0.3s; color: #888; font-size: 1.1rem; }
+    .action-btn:hover { color: #d4af37; }
+
+  //- Header Section
+  header.flex.justify-between.items-center.mb-10
+    div
+      h2(class="text-3xl font-bold text-[#1a1a1a] pn-font italic") Thư viện thực vật
+      p.text-gray-500 Quản lý cơ sở dữ liệu thực vật học
+    a(href="/admin/library/add", class="bg-[#1a1a1a] text-white px-6 py-3 rounded-lg font-bold transition duration-300 hover:bg-[#d4af37] hover:text-black") 
+      i.fas.fa-plus-circle.mr-2
+      | Thêm loài mới
+
+  //- Table Section
+  table.admin-table
+    thead
+      tr.text-left
+        th Hình ảnh
+        th Tên loài
+        th Họ thực vật
+        th Dữ liệu sinh thái
+        th.text-center Thao tác
+    tbody
+      if flora && flora.length > 0
+        each item in flora
+          - const tax = item.taxonomy || {}
+          - const eco = item.ecology || {}
+          tr
+            td: img(src=item.image || '/public/uploads/default-flower.jpg', class="w-12 h-12 rounded-lg object-cover")
+            td
+              strong(class="text-[#1a1a1a] text-lg")= item.common_name
+              br
+              small(class="text-[#d4af37] italic")= item.scientific_name
+            td: span.family-badge= tax.family || 'Chưa phân loại'
+            td
+              .flex.flex-col
+                span.eco-tag 
+                  i.fas.fa-vial(class="text-[#d4af37]")
+                  | pH đất: #{eco.soil_ph || '--'}
+                span.eco-tag 
+                  i.fas.fa-thermometer-half(class="text-[#d4af37]")
+                  | Nhiệt độ: #{eco.temperature || '--'}
+            td.text-center
+              a(href=`/admin/library/edit/${item._id}`, class="action-btn mr-4", title="Chỉnh sửa")
+                i.fas.fa-edit
+              a(href=`/admin/library/delete/${item._id}`, onclick="return confirm('Bạn có chắc chắn muốn xóa loài này?')", class="action-btn hover:text-red-500", title="Xóa")
+                i.fas.fa-trash-alt
+      else
+        tr
+          td(colspan="5", class="text-center py-20 text-gray-400") 
+            i.fas.fa-book-open.text-4xl.mb-4.block
+            p Hiện không có dữ liệu loài nào trong thư viện.

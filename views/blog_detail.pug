@@ -1,0 +1,46 @@
+extends layout
+
+block content
+  //- Sử dụng Playfair Display cho tiêu đề và Lora cho nội dung (Phong cách sang trọng)
+  link(href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Playfair+Display:wght@700&family=Lora:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet")
+  
+  style.
+    .news-container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+    
+    /* Tin tức Header */
+    .news-category { font-family: 'Montserrat', sans-serif; color: #d4af37; font-weight: 700; font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 15px; display: block; }
+    .news-title { font-family: 'Playfair Display', serif; font-size: 3.5rem; line-height: 1.1; margin-bottom: 25px; color: #1a1a1a; }
+    .news-meta { font-family: 'Montserrat', sans-serif; display: flex; align-items: center; gap: 20px; font-size: 0.8rem; color: #888; border-bottom: 1px solid #eee; padding-bottom: 20px; margin-bottom: 30px; }
+
+    /* Layout tin tức */
+    .featured-image { width: 100%; height: 500px; object-fit: cover; margin-bottom: 40px; border: 1px solid #f0f0f0; padding: 5px; }
+    
+    /* Nội dung tin tức - Font Lora sang trọng, cổ điển */
+    .news-content { font-family: 'Lora', serif; font-size: 1.2rem; line-height: 1.9; color: #333; text-align: justify; }
+    .news-content p { margin-bottom: 25px; }
+    
+    /* Nút Quay lại - Căn chỉnh khoảng cách */
+    .back-nav-wrapper { margin-top: 100px; margin-bottom: 50px; text-align: center; }
+    .back-btn { font-family: 'Montserrat', sans-serif; color: #d4af37; text-decoration: none; font-size: 0.75rem; letter-spacing: 0.2rem; border: 1px solid #d4af37; padding: 12px 40px; transition: 0.3s; text-transform: uppercase; }
+    .back-btn:hover { background: #d4af37; color: white; }
+
+  .news-container
+    header
+      span.news-category Tin tức PNShop
+      h1.news-title= post.title
+      .news-meta
+        //- Định dạng ngày tháng theo tiếng Việt
+        span #[i.far.fa-calendar-alt] #{new Date(post.createdAt).toLocaleDateString('vi-VN', {day: 'numeric', month: 'long', year: 'numeric'})}
+        span #[i.far.fa-user] Ban biên tập PNShop
+    
+    if post.image
+      img.featured-image(src=post.image, alt=post.title)
+    
+    article.news-content
+      div!= post.content
+
+    .back-nav-wrapper
+      a.back-btn(href="/blog") Quay lại trang tin tức
+
+    footer(style="margin-top: 80px; text-align: center; color: #bbb; font-size: 0.7rem; font-family: 'Montserrat', sans-serif; text-transform: uppercase; letter-spacing: 2px;")
+      p © 2026 Cổng thông tin PNShop — Luôn cập nhật thông tin mới nhất.

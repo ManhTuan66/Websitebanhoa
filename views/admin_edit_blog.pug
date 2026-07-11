@@ -1,0 +1,148 @@
+doctype html
+html(lang="vi")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title Chỉnh sửa bài viết - FloraHub Admin
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css")
+    link(href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700;800&display=swap", rel="stylesheet")
+    style.
+      :root {
+        --pink-main: #E91E63; 
+        --pink-dark: #C2185B; 
+        --pink-bg: #F8BBD0; 
+        --text-dark: #2d3436; 
+        --white: #FFFFFF;
+      }
+      * { box-sizing: border-box; }
+      body { font-family: 'Quicksand', sans-serif; background-color: #fdf2f4; margin: 0; color: var(--text-dark); }
+      .admin-layout { display: flex; min-height: 100vh; width: 100%; }
+      
+      /* SIDEBAR */
+      nav.admin-sidebar {
+        width: 280px; min-width: 280px; background: var(--white);
+        border-right: 2px solid var(--pink-bg); padding: 30px 20px;
+        height: 100vh; position: sticky; top: 0;
+      }
+      .logo { font-size: 1.8rem; font-weight: 800; color: var(--pink-dark); margin-bottom: 40px; text-align: center; }
+      .logo span { color: var(--pink-main); font-weight: 400; }
+      .admin-sidebar ul { list-style: none; padding: 0; margin: 0; }
+      .admin-sidebar li { margin-bottom: 8px; }
+      .admin-sidebar a { 
+        display: flex; align-items: center; gap: 12px; padding: 14px 20px; 
+        text-decoration: none; color: #888; border-radius: 15px; font-weight: 600; transition: 0.3s;
+      }
+      .admin-sidebar li.active a { background: var(--pink-main); color: white; box-shadow: 0 4px 15px rgba(233, 30, 99, 0.2); }
+      .admin-sidebar a:hover:not(.active) { background: #fce4ec; color: var(--pink-main); }
+
+      /* MAIN CONTENT */
+      .admin-main { flex-grow: 1; padding: 40px; background-color: #fce4ec; }
+      .edit-container { 
+        background: #fff; padding: 40px; border-radius: 30px; 
+        box-shadow: 0 15px 40px rgba(0,0,0,0.05); border: 2px solid var(--pink-bg);
+      }
+      
+      .form-group { margin-bottom: 25px; }
+      .form-group label { display: block; margin-bottom: 10px; font-weight: 700; font-size: 14px; color: #555; }
+      .form-group input, .form-group textarea { 
+        width: 100%; padding: 15px; border: 2px solid #f0f0f0; 
+        border-radius: 15px; outline: none; font-family: inherit; transition: 0.3s; background: #fafafa;
+      }
+      .form-group input:focus, .form-group textarea:focus { border-color: var(--pink-main); background: white; }
+
+      .preview-box {
+        display: flex; align-items: center; gap: 20px; 
+        background: #fff9fa; padding: 15px; border-radius: 20px; margin-bottom: 15px;
+        border: 1px dashed var(--pink-bg);
+      }
+      .preview-box img { width: 120px; height: 120px; object-fit: cover; border-radius: 15px; border: 2px solid white; }
+
+      .btn-save { 
+        background: var(--pink-dark); color: white; border: none; padding: 15px 40px; 
+        border-radius: 50px; cursor: pointer; font-weight: 700; transition: 0.3s;
+      }
+      .btn-save:hover { background: var(--pink-main); transform: translateY(-2px); }
+      .btn-cancel { 
+        background: #eee; color: #666; padding: 15px 40px; 
+        border-radius: 50px; text-decoration: none; font-weight: 700; margin-left: 10px;
+      }
+
+  body
+    .admin-layout
+      nav.admin-sidebar
+        .logo Flora<span>Admin</span>
+        ul
+          li
+            a(href="/admin") 
+              i.fas.fa-spa
+              | Quản lý hoa
+          li
+            a(href="/admin/library") 
+              i.fas.fa-book-medical
+              | Cẩm nang cây cảnh
+          li
+            a(href="/admin/users") 
+              i.fas.fa-user-shield
+              | Đội ngũ quản trị
+          li: a(href="/admin/orders") 
+            i.fas.fa-heart
+            | Đơn hàng mới
+            if pendingCount > 0
+              span.badge-pending #{pendingCount}
+          li
+            a(href="/admin/analytics") 
+              i.fas.fa-chart-pie
+              | Doanh thu shop
+          li.active
+            a(href="/admin/blog/create") 
+              i.fas.fa-pen-nib
+              | Viết bài Blog
+          li: a(href="/admin/vouchers") <i class="fas fa-ticket-alt"></i> Quản lý Voucher    
+          li
+            a(href="/") 
+              i.fas.fa-external-link-alt
+              | Xem cửa hàng
+          li
+            a(href="/logout" style="color: #ff7675; margin-top: 50px;") 
+              i.fas.fa-power-off
+              | Đăng xuất
+
+      main.admin-main
+        header.admin-header(style="margin-bottom: 30px;")
+          h2(style="margin:0; font-weight: 800; color: #444;") 
+            i.fas.fa-edit(style="color: var(--pink-main); margin-right: 12px;") 
+            | Chỉnh sửa bài viết
+
+        section.edit-container
+          form(action=`/admin/blog/update/${post._id}`, method="POST", enctype="multipart/form-data")
+            .form-group
+              label Tiêu đề bài viết:
+              input(type="text", name="title", value=post.title, required)
+            
+            .form-group
+              label Hình ảnh hiện tại:
+              .preview-box
+                img#imgPreview(src=post.image)
+                div
+                  p(style="font-size: 13px; color: #888; margin-bottom: 10px;") Chọn file mới nếu muốn thay đổi ảnh bìa
+                  input(type="file", name="image", accept="image/*", onchange="previewImage(event)")
+            
+            .form-group
+              label Nội dung bài viết:
+              textarea(name="content", rows="10", required)= post.content
+            
+            .form-actions(style="margin-top: 30px;")
+              button.btn-save(type="submit") 
+                i.fas.fa-save
+                |  Lưu thay đổi
+              a.btn-cancel(href="/admin/blog/create") Hủy bỏ
+
+    script.
+      function previewImage(event) {
+        const reader = new FileReader();
+        reader.onload = function() {
+          const output = document.getElementById('imgPreview');
+          output.src = reader.result;
+        }
+        reader.readAsDataURL(event.target.files[0]);
+      }
